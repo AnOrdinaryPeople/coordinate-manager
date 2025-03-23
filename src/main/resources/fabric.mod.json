@@ -1,0 +1,33 @@
+{
+	"schemaVersion": 1,
+	"id": "coordinate-manager",
+	"version": "${version}",
+	"name": "Coordinate Manager",
+	"description": "Capture, organize, and manage coordinates with more controls.",
+	"authors": [
+		"AnOrdinaryPeople"
+	],
+	"contact": {
+		"sources": "https://github.com/AnOrdinaryPeople/coordinate-manager"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/coordinate-manager/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.anordinarypeople.coordinatemanager.CoordinateManager"
+		],
+		"client": [
+			"com.anordinarypeople.coordinatemanager.CoordinateManagerClient"
+		],
+		"modmenu": [
+			"com.anordinarypeople.coordinatemanager.ModIntegration"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.16.10",
+		"minecraft": "~1.21.4",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}
