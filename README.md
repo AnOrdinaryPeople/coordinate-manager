@@ -34,7 +34,7 @@ Customizable via the in-game controls menu.
 
 Configurable via [Cloth Config API](https://modrinth.com/mod/cloth-config).
 
-| Setting | Type | Default |
+| Setting | Description | Default |
 | - | - | - |
 | Capture Mode | Determines whether coordinates are saved instantly or with a pop-up for editing. | Instant |
 | Enable Thumbnail | Captures a thumbnail when saving a coordinate. | Disabled |
@@ -45,7 +45,7 @@ Configurable via [Cloth Config API](https://modrinth.com/mod/cloth-config).
 ## TODO
 - Improve accessibility (e.g., narration).
 - Unique identifier for world/server (Currently relying on world names and server addresses).
-- Support more languages? [PRs](https://github.com/AnOrdinaryPeople/coordinate-manager) welcome.
+- Support more languages? [PRs](https://github.com/AnOrdinaryPeople/coordinate-manager/pulls) welcome.
 - Implement CI/CD?
 - Add support for more loaders?
 - Support Minecraft versions below **1.21.4**?
