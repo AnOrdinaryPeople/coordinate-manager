@@ -36,7 +36,7 @@ import net.minecraft.text.Text;
 public class HistoryScreen extends Screen {
   public final int padding = 5;
   public final int inputHeight = 20;
-  private final Screen parent;
+  private final ManageScreen parent;
   private final int footerHeight = 25;
   private final Button button = new Button(0, 0, 0, inputHeight);
   private ArrayList<String> deleteQueue = new ArrayList<>(Coordinate.INSTANCE.size());
@@ -49,7 +49,7 @@ public class HistoryScreen extends Screen {
   public int totalSelected;
   public SelectableCoor currentData;
 
-  public HistoryScreen(Screen parent) {
+  public HistoryScreen(ManageScreen parent) {
     super(Text.translatable("history.title"));
     this.parent = parent;
   }
@@ -353,6 +353,7 @@ public class HistoryScreen extends Screen {
     });
 
     if (parent != null) {
+      parent.refreshList();
       client.setScreen(parent);
     } else {
       super.close();

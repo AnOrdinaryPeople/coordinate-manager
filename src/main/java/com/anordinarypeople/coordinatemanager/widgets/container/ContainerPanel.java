@@ -11,20 +11,20 @@ import com.anordinarypeople.coordinatemanager.data.ListSelectableCoor;
 import com.anordinarypeople.coordinatemanager.data.SelectableCoor;
 import com.anordinarypeople.coordinatemanager.screens.HistoryScreen;
 import com.anordinarypeople.coordinatemanager.utils.BufferHelper;
-import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.MathHelper;
 
 public class ContainerPanel extends AlwaysSelectedEntryListWidget<ContainerPanelEntry> implements AutoCloseable {
   private final HistoryScreen parent;
   private final float z = 0.0F;
+  private final int bgColor = ColorHelper.fromFloats(1.0F, z, z, z);
   private MutableText description;
   private Consumer<SelectableCoor> onSelected;
   private DrawContext context;
@@ -80,27 +80,20 @@ public class ContainerPanel extends AlwaysSelectedEntryListWidget<ContainerPanel
   }
 
   private void drawSelected(int entryTop, int entryHeight, int entryLeft, int rowWidth) {
-    int selectionRight = getRowLeft() + rowWidth + 2;
-    setupShader(isFocused() ? 1.0F : 0.5F);
-    Matrix4f matrix = context.getMatrices().peek().getPositionMatrix();
-    builder.vertex(matrix, entryLeft, entryTop + entryHeight + 2, z);
-    builder.vertex(matrix, selectionRight, entryTop + entryHeight + 2, z);
-    builder.vertex(matrix, selectionRight, entryTop - 2, z);
-    builder.vertex(matrix, entryLeft, entryTop - 2, z);
-    bufferHelper.render();
-    setupShader(z);
-    builder.vertex(matrix, entryLeft + 1, entryTop + entryHeight + 1, z);
-    builder.vertex(matrix, selectionRight - 1, entryTop + entryHeight + 1, z);
-    builder.vertex(matrix, selectionRight - 1, entryTop - 1, z);
-    builder.vertex(matrix, entryLeft + 1, entryTop - 1, z);
-    bufferHelper.render();
-  }
-
-  private void setupShader(float shader) {
-    RenderSystem.setShader(ShaderProgramKeys.POSITION);
-    RenderSystem.setShaderColor(shader, shader, shader, 1.0F);
-
+    final int selectionRight = getRowLeft() + rowWidth + 2;
+    final float opacity = isFocused() ? 1.0F : 0.5F;
+    final Matrix4f matrix = context.getMatrices().peek().getPositionMatrix();
+    final int borderColor = ColorHelper.fromFloats(1.0F, opacity, opacity, opacity);
     builder = bufferHelper.begin();
+    builder.vertex(matrix, entryLeft, entryTop + entryHeight + 2, z).color(borderColor);
+    builder.vertex(matrix, selectionRight, entryTop + entryHeight + 2, z).color(borderColor);
+    builder.vertex(matrix, selectionRight, entryTop - 2, z).color(borderColor);
+    builder.vertex(matrix, entryLeft, entryTop - 2, z).color(borderColor);
+    builder.vertex(matrix, entryLeft + 1, entryTop + entryHeight + 1, z).color(bgColor);
+    builder.vertex(matrix, selectionRight - 1, entryTop + entryHeight + 1, z).color(bgColor);
+    builder.vertex(matrix, selectionRight - 1, entryTop - 1, z).color(bgColor);
+    builder.vertex(matrix, entryLeft + 1, entryTop - 1, z).color(bgColor);
+    bufferHelper.render();
   }
 
   private ContainerPanelEntry getEntryAtPos(int entryCount, double x, double y) {
@@ -191,7 +184,7 @@ public class ContainerPanel extends AlwaysSelectedEntryListWidget<ContainerPanel
 
     final int entryCount = getEntryCount();
     context = drawContext;
-    bufferHelper = new BufferHelper();
+    bufferHelper = new BufferHelper(client, "Container Panel");
 
     for (int i = 0; i < entryCount; i++) {
       int entryTop = getRowTop(i) + 2;

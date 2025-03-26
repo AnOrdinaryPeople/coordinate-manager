@@ -169,6 +169,11 @@ public class ManageScreen extends Screen {
     virtualDeleteImages(paths);
   }
 
+  public void refreshList() {
+    searchWidget.setText("");
+    worldPanel.filter("");
+  }
+
   @Override
   public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
     return super.keyPressed(keyCode, scanCode, modifiers)

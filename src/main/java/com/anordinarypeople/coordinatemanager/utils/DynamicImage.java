@@ -7,6 +7,7 @@ import java.io.IOException;
 import org.jetbrains.annotations.Nullable;
 
 import com.anordinarypeople.coordinatemanager.data.Const;
+import com.mojang.blaze3d.opengl.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.MinecraftClient;
@@ -27,9 +28,10 @@ public class DynamicImage {
 
       if (file.exists()) {
         try (FileInputStream inputStream = new FileInputStream(file)) {
+          String name = file.getName();
           NativeImage image = NativeImage.read(inputStream);
-          NativeImageBackedTexture texture = new NativeImageBackedTexture(image);
-          Identifier dynamicId = Identifier.of(Const.MOD_ID, file.getName());
+          NativeImageBackedTexture texture = new NativeImageBackedTexture(() -> name, image);
+          Identifier dynamicId = Identifier.of(Const.MOD_ID, name);
 
           client.getTextureManager().registerTexture(dynamicId, texture);
 
@@ -45,8 +47,8 @@ public class DynamicImage {
 
   public static void render(DrawContext context, MinecraftClient client, String path, int x, int y, int size) {
     RenderSystem.setShaderColor(shaderColor, shaderColor, shaderColor, shaderColor);
-    RenderSystem.enableBlend();
+    GlStateManager._enableBlend();
     context.drawTexture(RenderLayer::getGuiTextured, get(client, path), x, y, z, z, size, size, size, size);
-    RenderSystem.disableBlend();
+    GlStateManager._disableBlend();
   }
 }

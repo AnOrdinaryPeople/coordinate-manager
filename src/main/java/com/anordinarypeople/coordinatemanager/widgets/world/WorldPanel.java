@@ -19,11 +19,13 @@ import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.MathHelper;
 
 public class WorldPanel extends AlwaysSelectedEntryListWidget<WorldPanelEntry> implements AutoCloseable {
   private final ManageScreen parent;
   private final float z = 0.0F;
+  private final int bgColor = ColorHelper.fromFloats(1.0F, z, z, z);
   private MutableText description;
   private Consumer<String> onSelected;
   private DrawContext context;
@@ -73,13 +75,19 @@ public class WorldPanel extends AlwaysSelectedEntryListWidget<WorldPanelEntry> i
   }
 
   private void drawSelected(int entryTop, int entryHeight, int entryLeft, int rowWidth) {
+    final int selectionRight = getRowLeft() + rowWidth + 2;
+    final float opacity = isFocused() ? 1.0F : 0.5F;
+    final Matrix4f matrix = context.getMatrices().peek().getPositionMatrix();
+    final int borderColor = ColorHelper.fromFloats(1.0F, opacity, opacity, opacity);
     builder = bufferHelper.begin();
-    int selectionRight = getRowLeft() + rowWidth + 2;
-    Matrix4f matrix = context.getMatrices().peek().getPositionMatrix();
-    builder.vertex(matrix, entryLeft, entryTop + entryHeight + 2, z);
-    builder.vertex(matrix, selectionRight, entryTop + entryHeight + 2, z);
-    builder.vertex(matrix, selectionRight, entryTop - 2, z);
-    builder.vertex(matrix, entryLeft, entryTop - 2, z);
+    builder.vertex(matrix, entryLeft, entryTop + entryHeight + 2, z).color(borderColor);
+    builder.vertex(matrix, selectionRight, entryTop + entryHeight + 2, z).color(borderColor);
+    builder.vertex(matrix, selectionRight, entryTop - 2, z).color(borderColor);
+    builder.vertex(matrix, entryLeft, entryTop - 2, z).color(borderColor);
+    builder.vertex(matrix, entryLeft + 1, entryTop + entryHeight + 1, z).color(bgColor);
+    builder.vertex(matrix, selectionRight - 1, entryTop + entryHeight + 1, z).color(bgColor);
+    builder.vertex(matrix, selectionRight - 1, entryTop - 1, z).color(bgColor);
+    builder.vertex(matrix, entryLeft + 1, entryTop - 1, z).color(bgColor);
     bufferHelper.render();
   }
 
@@ -166,7 +174,7 @@ public class WorldPanel extends AlwaysSelectedEntryListWidget<WorldPanelEntry> i
 
     final int entryCount = getEntryCount();
     context = drawContext;
-    bufferHelper = new BufferHelper();
+    bufferHelper = new BufferHelper(client, "World Panel");
 
     for (int i = 0; i < entryCount; i++) {
       int entryTop = getRowTop(i) + 2;
