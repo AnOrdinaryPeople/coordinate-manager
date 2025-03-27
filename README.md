@@ -32,7 +32,7 @@ Customizable via the in-game controls menu.
 
 ## Configuration
 
-Configurable via [Cloth Config API](https://modrinth.com/mod/cloth-config).
+Configurable via [Cloth Config API](https://modrinth.com/mod/cloth-config) with [Mod Menu](https://modrinth.com/mod/modmenu).
 
 | Setting | Description | Default |
 | - | - | - |
