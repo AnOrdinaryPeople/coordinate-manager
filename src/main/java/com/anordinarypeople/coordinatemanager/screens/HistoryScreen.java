@@ -14,6 +14,7 @@ import com.anordinarypeople.coordinatemanager.enums.SelectConfirmType;
 import com.anordinarypeople.coordinatemanager.screens.confirm.ClearAllConfirm;
 import com.anordinarypeople.coordinatemanager.screens.confirm.DeleteConfirm;
 import com.anordinarypeople.coordinatemanager.screens.confirm.SelectConfirm;
+import com.anordinarypeople.coordinatemanager.utils.BaseContainerScreen;
 import com.anordinarypeople.coordinatemanager.utils.CopyXYZ;
 import com.anordinarypeople.coordinatemanager.utils.DimensionColor;
 import com.anordinarypeople.coordinatemanager.utils.Messager;
@@ -24,7 +25,6 @@ import com.anordinarypeople.coordinatemanager.widgets.container.detail.DetailPan
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.toast.SystemToast;
@@ -33,11 +33,8 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 
 @Environment(EnvType.CLIENT)
-public class HistoryScreen extends Screen {
-  public final int padding = 5;
-  public final int inputHeight = 20;
+public class HistoryScreen extends BaseContainerScreen {
   private final ManageScreen parent;
-  private final int footerHeight = 25;
   private final Button button = new Button(0, 0, 0, inputHeight);
   private ArrayList<String> deleteQueue = new ArrayList<>(Coordinate.INSTANCE.size());
   private TextFieldWidget searchWidget;
@@ -47,10 +44,9 @@ public class HistoryScreen extends Screen {
   public ListSelectableCoor mapData = null;
   public boolean manualUpdate = false;
   public int totalSelected;
-  public SelectableCoor currentData;
 
   public HistoryScreen(ManageScreen parent) {
-    super(Text.translatable("history.title"));
+    super("history.title");
     this.parent = parent;
   }
 
@@ -111,7 +107,8 @@ public class HistoryScreen extends Screen {
           currentData = data;
           detailPanel.updateDetail(data);
         },
-        this);
+        this,
+        true);
 
     containerPanel.filter("");
     addDrawableChild(containerPanel);

@@ -18,4 +18,5 @@ public class Const {
   public static final int LIGHT_BLUE = 0x55FFFF;
   public static final int RED = 0xFF5555;
   public static final int PURPLE = 0xAA00AA;
+  public static final int YELLOW = 0xFDC700;
 }

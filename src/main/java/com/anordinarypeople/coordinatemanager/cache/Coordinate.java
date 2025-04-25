@@ -13,7 +13,7 @@ public class Coordinate {
   public static File JSON_FILE;
   public static ListCoordinate INSTANCE;
 
-  private static String sanitize(String value) {
+  public static String sanitize(String value) {
     String sanitized = value
         .replaceAll("§.", "")
         .replaceAll("[\\\\/:*?\"<>|]", "_")

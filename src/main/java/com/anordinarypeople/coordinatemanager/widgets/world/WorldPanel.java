@@ -4,8 +4,6 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
-import org.joml.Matrix4f;
-
 import com.anordinarypeople.coordinatemanager.cache.WorldCache;
 import com.anordinarypeople.coordinatemanager.data.Const;
 import com.anordinarypeople.coordinatemanager.data.WorldData;
@@ -16,7 +14,6 @@ import com.anordinarypeople.coordinatemanager.utils.WorldKeyword;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
-import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.ColorHelper;
@@ -30,7 +27,6 @@ public class WorldPanel extends AlwaysSelectedEntryListWidget<WorldPanelEntry> i
   private Consumer<String> onSelected;
   private DrawContext context;
   private BufferHelper bufferHelper;
-  private BufferBuilder builder;
 
   public WorldPanel(
       MinecraftClient client,
@@ -75,20 +71,16 @@ public class WorldPanel extends AlwaysSelectedEntryListWidget<WorldPanelEntry> i
   }
 
   private void drawSelected(int entryTop, int entryHeight, int entryLeft, int rowWidth) {
-    final int selectionRight = getRowLeft() + rowWidth + 2;
-    final float opacity = isFocused() ? 1.0F : 0.5F;
-    final Matrix4f matrix = context.getMatrices().peek().getPositionMatrix();
-    final int borderColor = ColorHelper.fromFloats(1.0F, opacity, opacity, opacity);
-    builder = bufferHelper.begin();
-    builder.vertex(matrix, entryLeft, entryTop + entryHeight + 2, z).color(borderColor);
-    builder.vertex(matrix, selectionRight, entryTop + entryHeight + 2, z).color(borderColor);
-    builder.vertex(matrix, selectionRight, entryTop - 2, z).color(borderColor);
-    builder.vertex(matrix, entryLeft, entryTop - 2, z).color(borderColor);
-    builder.vertex(matrix, entryLeft + 1, entryTop + entryHeight + 1, z).color(bgColor);
-    builder.vertex(matrix, selectionRight - 1, entryTop + entryHeight + 1, z).color(bgColor);
-    builder.vertex(matrix, selectionRight - 1, entryTop - 1, z).color(bgColor);
-    builder.vertex(matrix, entryLeft + 1, entryTop - 1, z).color(bgColor);
-    bufferHelper.render();
+    bufferHelper.drawSelected(
+        context,
+        isFocused(),
+        getRowLeft(),
+        rowWidth,
+        entryLeft,
+        entryTop,
+        entryHeight,
+        z,
+        bgColor);
   }
 
   private WorldPanelEntry getEntryAtPos(int entryCount, double x, double y) {
@@ -126,6 +118,10 @@ public class WorldPanel extends AlwaysSelectedEntryListWidget<WorldPanelEntry> i
     clearEntries();
 
     for (WorldData data : WorldCache.INSTANCE) {
+      if (data.keywords.size() == 0) {
+        continue;
+      }
+
       if (lowered.isBlank() || ((data.worldName != null &&
           pattern.matcher(data.worldName.toLowerCase()).find()) ||
           WorldKeyword.countMatched(data, pattern) > 0)) {

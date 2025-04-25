@@ -41,7 +41,6 @@ public class ManageScreen extends Screen {
   public ManageScreen(Screen parent) {
     super(Text.translatable("management.title"));
     this.parent = parent;
-    WorldCache.load();
   }
 
   private void renderSearch() {

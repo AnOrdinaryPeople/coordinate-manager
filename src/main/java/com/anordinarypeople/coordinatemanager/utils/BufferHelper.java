@@ -3,6 +3,8 @@ package com.anordinarypeople.coordinatemanager.utils;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 
+import org.joml.Matrix4f;
+
 import com.mojang.blaze3d.buffers.BufferType;
 import com.mojang.blaze3d.buffers.BufferUsage;
 import com.mojang.blaze3d.buffers.GpuBuffer;
@@ -14,9 +16,11 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gl.RenderPipelines;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.BuiltBuffer;
 import net.minecraft.client.util.BufferAllocator;
+import net.minecraft.util.math.ColorHelper;
 
 public class BufferHelper {
   private final Console logger = new Console("buffer-helper");
@@ -32,7 +36,7 @@ public class BufferHelper {
     pipeline = RenderPipelines.GUI;
   }
 
-  public BufferBuilder begin() {
+  private BufferBuilder begin() {
     try {
       alloc = new BufferAllocator(pipeline.getVertexFormat().getVertexSize() * 4);
       builder = new BufferBuilder(alloc, pipeline.getVertexFormatMode(), pipeline.getVertexFormat());
@@ -43,7 +47,7 @@ public class BufferHelper {
     return builder;
   }
 
-  public void render() {
+  private void render() {
     try (BuiltBuffer built = builder.endNullable()) {
       if (built == null) {
         alloc.close();
@@ -70,5 +74,31 @@ public class BufferHelper {
         renderPass.drawIndexed(0, built.getDrawParameters().indexCount());
       }
     }
+  }
+
+  public void drawSelected(
+      DrawContext context,
+      boolean isFocused,
+      int rowLeft,
+      int rowWidth,
+      int entryLeft,
+      int entryTop,
+      int entryHeight,
+      float z,
+      int bgColor) {
+    final int selectionRight = rowLeft + rowWidth + 2;
+    final float opacity = isFocused ? 1.0F : 0.5F;
+    final Matrix4f matrix = context.getMatrices().peek().getPositionMatrix();
+    final int borderColor = ColorHelper.fromFloats(1.0F, opacity, opacity, opacity);
+    builder = begin();
+    builder.vertex(matrix, entryLeft, entryTop + entryHeight + 2, z).color(borderColor);
+    builder.vertex(matrix, selectionRight, entryTop + entryHeight + 2, z).color(borderColor);
+    builder.vertex(matrix, selectionRight, entryTop - 2, z).color(borderColor);
+    builder.vertex(matrix, entryLeft, entryTop - 2, z).color(borderColor);
+    builder.vertex(matrix, entryLeft + 1, entryTop + entryHeight + 1, z).color(bgColor);
+    builder.vertex(matrix, selectionRight - 1, entryTop + entryHeight + 1, z).color(bgColor);
+    builder.vertex(matrix, selectionRight - 1, entryTop - 1, z).color(bgColor);
+    builder.vertex(matrix, entryLeft + 1, entryTop - 1, z).color(bgColor);
+    render();
   }
 }

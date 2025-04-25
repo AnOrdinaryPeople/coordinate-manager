@@ -1,64 +1,53 @@
-package com.anordinarypeople.coordinatemanager.widgets.container;
+package com.anordinarypeople.coordinatemanager.widgets.empty;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.regex.Pattern;
 
-import com.anordinarypeople.coordinatemanager.data.Const;
-import com.anordinarypeople.coordinatemanager.data.ListSelectableCoor;
-import com.anordinarypeople.coordinatemanager.data.SelectableCoor;
-import com.anordinarypeople.coordinatemanager.utils.BaseContainerScreen;
+import com.anordinarypeople.coordinatemanager.data.EmptyWorld;
+import com.anordinarypeople.coordinatemanager.screens.WorldNameScreen;
 import com.anordinarypeople.coordinatemanager.utils.BufferHelper;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
 import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.MathHelper;
 
-public class ContainerPanel extends AlwaysSelectedEntryListWidget<ContainerPanelEntry> implements AutoCloseable {
-  private final BaseContainerScreen parent;
+public class EmptyWorldPanel extends AlwaysSelectedEntryListWidget<EmptyWorldPanelEntry> implements AutoCloseable {
+  private final WorldNameScreen parent;
+  private final List<EmptyWorld> list;
   private final float z = 0.0F;
   private final int bgColor = ColorHelper.fromFloats(1.0F, z, z, z);
-  private final boolean selectable;
-  private MutableText description;
-  private Consumer<SelectableCoor> onSelected;
+  private Consumer<EmptyWorld> onSelected;
   private DrawContext context;
   private BufferHelper bufferHelper;
-  public ListSelectableCoor list;
 
-  public ContainerPanel(
+  public EmptyWorldPanel(
       MinecraftClient client,
       int width,
       int height,
       int x,
       int y,
       int itemHeight,
-      ListSelectableCoor list,
-      Consumer<SelectableCoor> onSelected,
-      BaseContainerScreen parent,
-      boolean selectable) {
+      List<EmptyWorld> list,
+      Consumer<EmptyWorld> onSelected,
+      WorldNameScreen parent) {
     super(client, width, height, y, itemHeight);
 
     this.setX(x);
     this.onSelected = onSelected;
-    this.selectable = selectable;
     this.parent = parent;
-
-    if (list != null) {
-      this.list = list;
-    }
+    this.list = list;
   }
 
   private void drawItem(int entryCount, int index, int entryTop, int mouseX, int mouseY, float delta) {
     final int entryHeight = itemHeight - 5;
     final int rowWidth = getRowWidth();
-    ContainerPanelEntry entry = getEntry(index);
+    EmptyWorldPanelEntry entry = getEntry(index);
     int entryLeft;
 
-    if (parent.currentData != null && entry.data.uuid.equals(parent.currentData.uuid)) {
+    if (parent.selected != null && parent.selected.index == entry.data.index) {
       entryLeft = getRowLeft() - 2;
       drawSelected(entryTop, entryHeight, entryLeft, rowWidth);
     }
@@ -91,7 +80,7 @@ public class ContainerPanel extends AlwaysSelectedEntryListWidget<ContainerPanel
         bgColor);
   }
 
-  private ContainerPanelEntry getEntryAtPos(int entryCount, double x, double y) {
+  private EmptyWorldPanelEntry getEntryAtPos(int entryCount, double x, double y) {
     final int entryY = MathHelper.floor(y - ((double) getY()) - headerHeight + (int) getScrollY() - 4);
     final int index = entryY / itemHeight;
     final int rowLeft = getRowLeft();
@@ -114,31 +103,20 @@ public class ContainerPanel extends AlwaysSelectedEntryListWidget<ContainerPanel
     }
   }
 
-  public void filter(String keyword) {
-    if (list == null || list.size() == 0) {
-      description = Text.translatable(selectable
-          ? "container.description"
-          : "container.description_empty_world");
-      return;
-    }
-    String lowered = keyword.toLowerCase();
-    Pattern pattern = Pattern.compile(lowered);
-    boolean clearDescription = false;
-
+  public void showEntries() {
     clearEntries();
 
-    for (SelectableCoor data : list) {
-      if (lowered.isBlank() || ((data.name != null &&
-          pattern.matcher(data.name.toLowerCase()).find()) ||
-          pattern.matcher(Double.toString(data.x)).find() ||
-          pattern.matcher(Double.toString(data.y)).find() ||
-          pattern.matcher(Double.toString(data.z)).find())) {
-        clearDescription = true;
-        addEntry(new ContainerPanelEntry(client, data));
+    int position = 0;
+    for (EmptyWorld empty : list) {
+      position++;
+
+      if (empty.name != null) {
+        continue;
       }
+
+      addEntry(new EmptyWorldPanelEntry(client, empty, position));
     }
 
-    description = clearDescription ? null : Text.translatable("container.description_not_found");
     scrollToTop();
   }
 
@@ -147,14 +125,10 @@ public class ContainerPanel extends AlwaysSelectedEntryListWidget<ContainerPanel
   }
 
   @Override
-  public void setSelected(ContainerPanelEntry entry) {
-    if (!selectable) {
-      return;
-    }
-
+  public void setSelected(EmptyWorldPanelEntry entry) {
     super.setSelected(entry);
 
-    if (parent.currentData == null || !parent.currentData.uuid.equals(entry.data.uuid)) {
+    if (parent.selected == null || parent.selected.index != entry.data.index) {
       onSelected.accept(entry.data);
     }
   }
@@ -172,20 +146,9 @@ public class ContainerPanel extends AlwaysSelectedEntryListWidget<ContainerPanel
 
   @Override
   protected void renderList(DrawContext drawContext, int mouseX, int mouseY, float delta) {
-    if (description != null) {
-      drawContext.drawText(
-          client.textRenderer,
-          description,
-          parent.padding * 2,
-          parent.inputHeight + parent.padding * 3 + 2,
-          Const.WHITE,
-          true);
-      return;
-    }
-
     final int entryCount = getEntryCount();
     context = drawContext;
-    bufferHelper = new BufferHelper(client, "Container Panel");
+    bufferHelper = new BufferHelper(client, "World Empty Panel");
 
     for (int i = 0; i < entryCount; i++) {
       int entryTop = getRowTop(i) + 2;
