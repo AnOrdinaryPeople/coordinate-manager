@@ -6,24 +6,20 @@ import java.util.function.Consumer;
 
 import com.anordinarypeople.coordinatemanager.data.Const;
 import com.anordinarypeople.coordinatemanager.screens.ChooseWorldScreen;
-import com.anordinarypeople.coordinatemanager.utils.BufferHelper;
+import com.anordinarypeople.coordinatemanager.utils.RenderHelper;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.MathHelper;
 
 public class ChooseWorldPanel extends AlwaysSelectedEntryListWidget<ChooseWorldPanelEntry> implements AutoCloseable {
   private final ChooseWorldScreen parent;
   private final List<String> list;
-  private final float z = 0.0F;
-  private final int bgColor = ColorHelper.fromFloats(1.0F, z, z, z);
   private Consumer<String> onSelected;
   private DrawContext context;
-  private BufferHelper bufferHelper;
   private MutableText description = null;
 
   public ChooseWorldPanel(
@@ -71,16 +67,13 @@ public class ChooseWorldPanel extends AlwaysSelectedEntryListWidget<ChooseWorldP
   }
 
   private void drawSelected(int entryTop, int entryHeight, int entryLeft, int rowWidth) {
-    bufferHelper.drawSelected(
+    RenderHelper.drawSelected(
         context,
-        isFocused(),
         getRowLeft(),
         rowWidth,
         entryLeft,
         entryTop,
-        entryHeight,
-        z,
-        bgColor);
+        entryHeight);
   }
 
   private ChooseWorldPanelEntry getEntryAtPos(int entryCount, double x, double y) {
@@ -159,7 +152,6 @@ public class ChooseWorldPanel extends AlwaysSelectedEntryListWidget<ChooseWorldP
     }
     final int entryCount = getEntryCount();
     context = drawContext;
-    bufferHelper = new BufferHelper(client, "Choose World Panel");
 
     for (int i = 0; i < entryCount; i++) {
       int entryTop = getRowTop(i) + 2;

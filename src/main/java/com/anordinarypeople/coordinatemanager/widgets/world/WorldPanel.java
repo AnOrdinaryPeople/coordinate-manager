@@ -8,7 +8,7 @@ import com.anordinarypeople.coordinatemanager.cache.WorldCache;
 import com.anordinarypeople.coordinatemanager.data.Const;
 import com.anordinarypeople.coordinatemanager.data.WorldData;
 import com.anordinarypeople.coordinatemanager.screens.ManageScreen;
-import com.anordinarypeople.coordinatemanager.utils.BufferHelper;
+import com.anordinarypeople.coordinatemanager.utils.RenderHelper;
 import com.anordinarypeople.coordinatemanager.utils.WorldKeyword;
 
 import net.minecraft.client.MinecraftClient;
@@ -16,17 +16,13 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.MathHelper;
 
 public class WorldPanel extends AlwaysSelectedEntryListWidget<WorldPanelEntry> implements AutoCloseable {
   private final ManageScreen parent;
-  private final float z = 0.0F;
-  private final int bgColor = ColorHelper.fromFloats(1.0F, z, z, z);
   private MutableText description;
   private Consumer<String> onSelected;
   private DrawContext context;
-  private BufferHelper bufferHelper;
 
   public WorldPanel(
       MinecraftClient client,
@@ -71,16 +67,13 @@ public class WorldPanel extends AlwaysSelectedEntryListWidget<WorldPanelEntry> i
   }
 
   private void drawSelected(int entryTop, int entryHeight, int entryLeft, int rowWidth) {
-    bufferHelper.drawSelected(
+    RenderHelper.drawSelected(
         context,
-        isFocused(),
         getRowLeft(),
         rowWidth,
         entryLeft,
         entryTop,
-        entryHeight,
-        z,
-        bgColor);
+        entryHeight);
   }
 
   private WorldPanelEntry getEntryAtPos(int entryCount, double x, double y) {
@@ -170,7 +163,6 @@ public class WorldPanel extends AlwaysSelectedEntryListWidget<WorldPanelEntry> i
 
     final int entryCount = getEntryCount();
     context = drawContext;
-    bufferHelper = new BufferHelper(client, "World Panel");
 
     for (int i = 0; i < entryCount; i++) {
       int entryTop = getRowTop(i) + 2;

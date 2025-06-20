@@ -6,22 +6,18 @@ import java.util.function.Consumer;
 
 import com.anordinarypeople.coordinatemanager.data.EmptyWorld;
 import com.anordinarypeople.coordinatemanager.screens.WorldNameScreen;
-import com.anordinarypeople.coordinatemanager.utils.BufferHelper;
+import com.anordinarypeople.coordinatemanager.utils.RenderHelper;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
-import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.MathHelper;
 
 public class EmptyWorldPanel extends AlwaysSelectedEntryListWidget<EmptyWorldPanelEntry> implements AutoCloseable {
   private final WorldNameScreen parent;
   private final List<EmptyWorld> list;
-  private final float z = 0.0F;
-  private final int bgColor = ColorHelper.fromFloats(1.0F, z, z, z);
   private Consumer<EmptyWorld> onSelected;
   private DrawContext context;
-  private BufferHelper bufferHelper;
 
   public EmptyWorldPanel(
       MinecraftClient client,
@@ -68,16 +64,13 @@ public class EmptyWorldPanel extends AlwaysSelectedEntryListWidget<EmptyWorldPan
   }
 
   private void drawSelected(int entryTop, int entryHeight, int entryLeft, int rowWidth) {
-    bufferHelper.drawSelected(
+    RenderHelper.drawSelected(
         context,
-        isFocused(),
         getRowLeft(),
         rowWidth,
         entryLeft,
         entryTop,
-        entryHeight,
-        z,
-        bgColor);
+        entryHeight);
   }
 
   private EmptyWorldPanelEntry getEntryAtPos(int entryCount, double x, double y) {
@@ -148,7 +141,6 @@ public class EmptyWorldPanel extends AlwaysSelectedEntryListWidget<EmptyWorldPan
   protected void renderList(DrawContext drawContext, int mouseX, int mouseY, float delta) {
     final int entryCount = getEntryCount();
     context = drawContext;
-    bufferHelper = new BufferHelper(client, "World Empty Panel");
 
     for (int i = 0; i < entryCount; i++) {
       int entryTop = getRowTop(i) + 2;

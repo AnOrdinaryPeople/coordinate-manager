@@ -173,7 +173,6 @@ public class WorldNameScreen extends BaseContainerScreen {
         padding * 3 + 2 + totalInputHeight + inputHeight,
         30,
         null,
-        data -> currentData = data,
         this,
         false);
 

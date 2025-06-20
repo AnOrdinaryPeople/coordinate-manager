@@ -103,10 +103,6 @@ public class HistoryScreen extends BaseContainerScreen {
         padding * 2 + 2 + inputHeight,
         30,
         mapData,
-        data -> {
-          currentData = data;
-          detailPanel.updateDetail(data);
-        },
         this,
         true);
 
@@ -187,6 +183,12 @@ public class HistoryScreen extends BaseContainerScreen {
     mapData.set(Coordinate.set(currentData, false), currentData);
     containerPanel.list = mapData;
     containerPanel.filter(searchWidget.getText());
+  }
+
+  @Override
+  public void onSelected(SelectableCoor data) {
+    currentData = data;
+    detailPanel.updateDetail(data);
   }
 
   public void onClickPin() {
@@ -379,7 +381,6 @@ public class HistoryScreen extends BaseContainerScreen {
   @Override
   public void render(DrawContext context, int mouseX, int mouseY, float delta) {
     super.render(context, mouseX, mouseY, delta);
-    detailPanel.render(context);
 
     if (currentData != null) {
       detailPanel.renderImage(context, currentData);

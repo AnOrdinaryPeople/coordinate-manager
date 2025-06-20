@@ -67,7 +67,7 @@ public class CaptureHandler {
         getCoordinate().replaceAll("[XYZ.\\-:, ]+", ""));
     File imageFile = new File(path, "screenshots/" + filename);
 
-    ScreenshotRecorder.saveScreenshot(path, filename, framebuffer, successText -> virtualProcess(imageFile));
+    ScreenshotRecorder.saveScreenshot(path, filename, framebuffer, 1, successText -> virtualProcess(imageFile));
 
     imagePath = imageFile.getAbsolutePath();
   }

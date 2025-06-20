@@ -11,12 +11,12 @@ public class Const {
   public static final String UNKNOWN_WORLD = "dimension.unknown";
   public static final int MIN_COOLDOWN = 250;
   public static final int TRANSPARENT = 0x000000BF;
-  public static final int WHITE = 0xFFFFFF;
-  public static final int GREEN = 0x2ECC71;
-  public static final int GRAY = 0x808080;
-  public static final int DARK_GREEN = 0x1D8348;
-  public static final int LIGHT_BLUE = 0x55FFFF;
-  public static final int RED = 0xFF5555;
-  public static final int PURPLE = 0xAA00AA;
-  public static final int YELLOW = 0xFDC700;
+  public static final int WHITE = 0xFFFFFFFF;
+  public static final int GREEN = 0xFF2ECC71;
+  public static final int GRAY = 0xFF808080;
+  public static final int DARK_GREEN = 0xFF1D8348;
+  public static final int LIGHT_BLUE = 0xFF55FFFF;
+  public static final int RED = 0xFFFF5555;
+  public static final int PURPLE = 0xFFAA00AA;
+  public static final int YELLOW = 0xFFFDC700;
 }

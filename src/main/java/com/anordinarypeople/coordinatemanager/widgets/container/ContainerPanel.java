@@ -1,32 +1,26 @@
 package com.anordinarypeople.coordinatemanager.widgets.container;
 
 import java.util.Objects;
-import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 import com.anordinarypeople.coordinatemanager.data.Const;
 import com.anordinarypeople.coordinatemanager.data.ListSelectableCoor;
 import com.anordinarypeople.coordinatemanager.data.SelectableCoor;
 import com.anordinarypeople.coordinatemanager.utils.BaseContainerScreen;
-import com.anordinarypeople.coordinatemanager.utils.BufferHelper;
+import com.anordinarypeople.coordinatemanager.utils.RenderHelper;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.MathHelper;
 
 public class ContainerPanel extends AlwaysSelectedEntryListWidget<ContainerPanelEntry> implements AutoCloseable {
   private final BaseContainerScreen parent;
-  private final float z = 0.0F;
-  private final int bgColor = ColorHelper.fromFloats(1.0F, z, z, z);
   private final boolean selectable;
   private MutableText description;
-  private Consumer<SelectableCoor> onSelected;
   private DrawContext context;
-  private BufferHelper bufferHelper;
   public ListSelectableCoor list;
 
   public ContainerPanel(
@@ -37,13 +31,11 @@ public class ContainerPanel extends AlwaysSelectedEntryListWidget<ContainerPanel
       int y,
       int itemHeight,
       ListSelectableCoor list,
-      Consumer<SelectableCoor> onSelected,
       BaseContainerScreen parent,
       boolean selectable) {
     super(client, width, height, y, itemHeight);
 
     this.setX(x);
-    this.onSelected = onSelected;
     this.selectable = selectable;
     this.parent = parent;
 
@@ -79,16 +71,13 @@ public class ContainerPanel extends AlwaysSelectedEntryListWidget<ContainerPanel
   }
 
   private void drawSelected(int entryTop, int entryHeight, int entryLeft, int rowWidth) {
-    bufferHelper.drawSelected(
+    RenderHelper.drawSelected(
         context,
-        isFocused(),
         getRowLeft(),
         rowWidth,
         entryLeft,
         entryTop,
-        entryHeight,
-        z,
-        bgColor);
+        entryHeight);
   }
 
   private ContainerPanelEntry getEntryAtPos(int entryCount, double x, double y) {
@@ -155,7 +144,7 @@ public class ContainerPanel extends AlwaysSelectedEntryListWidget<ContainerPanel
     super.setSelected(entry);
 
     if (parent.currentData == null || !parent.currentData.uuid.equals(entry.data.uuid)) {
-      onSelected.accept(entry.data);
+      parent.onSelected(entry.data);
     }
   }
 
@@ -185,7 +174,6 @@ public class ContainerPanel extends AlwaysSelectedEntryListWidget<ContainerPanel
 
     final int entryCount = getEntryCount();
     context = drawContext;
-    bufferHelper = new BufferHelper(client, "Container Panel");
 
     for (int i = 0; i < entryCount; i++) {
       int entryTop = getRowTop(i) + 2;

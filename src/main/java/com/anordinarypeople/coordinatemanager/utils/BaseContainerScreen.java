@@ -14,4 +14,8 @@ public class BaseContainerScreen extends Screen {
   public BaseContainerScreen(String translatableKey) {
     super(Text.translatable(translatableKey));
   }
+
+  public void onSelected(SelectableCoor data) {
+    currentData = data;
+  }
 }
