@@ -48,6 +48,5 @@ Configurable via [Cloth Config API](https://modrinth.com/mod/cloth-config) with 
 - Support more languages? [PRs](https://github.com/AnOrdinaryPeople/coordinate-manager/pulls) welcome.
 - Implement CI/CD?
 - Add support for more loaders?
-- Support Minecraft versions below **1.21.4**?
 - Modify a very slight unaligned search and panels? Might be major issue if users have OCD /s
 - Refactor codebase structure for best practices? ¯\\\_(ツ)\_/¯
