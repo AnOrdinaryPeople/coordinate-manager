@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import org.jetbrains.annotations.Nullable;
+
 import com.anordinarypeople.coordinatemanager.data.EmptyWorld;
 import com.anordinarypeople.coordinatemanager.screens.WorldNameScreen;
 import com.anordinarypeople.coordinatemanager.utils.RenderHelper;
@@ -37,25 +39,22 @@ public class EmptyWorldPanel extends AlwaysSelectedEntryListWidget<EmptyWorldPan
     this.list = list;
   }
 
+  @Nullable
+  private EmptyWorldPanelEntry getEntry(int index) {
+    return children().size() > index ? children().get(index) : null;
+  }
+
   private void drawItem(int entryCount, int index, int entryTop, int mouseX, int mouseY, float delta) {
     final int entryHeight = itemHeight - 5;
     final int rowWidth = getRowWidth();
     EmptyWorldPanelEntry entry = getEntry(index);
-    int entryLeft;
 
     if (parent.selected != null && parent.selected.index == entry.data.index) {
-      entryLeft = getRowLeft() - 2;
-      drawSelected(entryTop, entryHeight, entryLeft, rowWidth);
+      drawSelected(entryTop, entryHeight, getRowLeft() - 2, rowWidth);
     }
 
-    entryLeft = getRowLeft();
     entry.render(
         context,
-        index,
-        entryTop,
-        entryLeft,
-        rowWidth,
-        entryHeight,
         mouseX,
         mouseY,
         isMouseOver(mouseX, mouseY)
@@ -74,7 +73,7 @@ public class EmptyWorldPanel extends AlwaysSelectedEntryListWidget<EmptyWorldPan
   }
 
   private EmptyWorldPanelEntry getEntryAtPos(int entryCount, double x, double y) {
-    final int entryY = MathHelper.floor(y - ((double) getY()) - headerHeight + (int) getScrollY() - 4);
+    final int entryY = MathHelper.floor(y - ((double) getY()) + (int) getScrollY());
     final int index = entryY / itemHeight;
     final int rowLeft = getRowLeft();
 

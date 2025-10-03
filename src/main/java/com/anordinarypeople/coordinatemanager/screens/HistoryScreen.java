@@ -27,6 +27,8 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.input.CharInput;
+import net.minecraft.client.input.KeyInput;
 import net.minecraft.client.toast.SystemToast;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
@@ -318,22 +320,22 @@ public class HistoryScreen extends BaseContainerScreen {
   }
 
   @Override
-  public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-    return super.keyPressed(keyCode, scanCode, modifiers)
-        || searchWidget.keyPressed(keyCode, scanCode, modifiers)
-        || detailPanel.nameField.keyPressed(keyCode, scanCode, modifiers)
-        || detailPanel.xField.keyPressed(keyCode, scanCode, modifiers)
-        || detailPanel.yField.keyPressed(keyCode, scanCode, modifiers)
-        || detailPanel.zField.keyPressed(keyCode, scanCode, modifiers);
+  public boolean keyPressed(KeyInput keyInput) {
+    return super.keyPressed(keyInput)
+        || searchWidget.keyPressed(keyInput)
+        || detailPanel.nameField.keyPressed(keyInput)
+        || detailPanel.xField.keyPressed(keyInput)
+        || detailPanel.yField.keyPressed(keyInput)
+        || detailPanel.zField.keyPressed(keyInput);
   }
 
   @Override
-  public boolean charTyped(char chr, int keyCode) {
-    return searchWidget.charTyped(chr, keyCode)
-        || detailPanel.nameField.charTyped(chr, keyCode)
-        || detailPanel.xField.charTyped(chr, keyCode)
-        || detailPanel.yField.charTyped(chr, keyCode)
-        || detailPanel.zField.charTyped(chr, keyCode);
+  public boolean charTyped(CharInput chr) {
+    return searchWidget.charTyped(chr)
+        || detailPanel.nameField.charTyped(chr)
+        || detailPanel.xField.charTyped(chr)
+        || detailPanel.yField.charTyped(chr)
+        || detailPanel.zField.charTyped(chr);
   }
 
   @Override

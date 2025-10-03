@@ -18,7 +18,6 @@ public class WorldPanelEntry extends AlwaysSelectedEntryListWidget.Entry<WorldPa
   private final MinecraftClient client;
   private final Pattern pattern;
   private DrawContext context;
-  private int maxWidth;
 
   public WorldPanelEntry(MinecraftClient client, WorldData data, Pattern pattern) {
     this.client = client;
@@ -27,7 +26,7 @@ public class WorldPanelEntry extends AlwaysSelectedEntryListWidget.Entry<WorldPa
   }
 
   private MutableText trim(Text text) {
-    return TextTrim.trim(client.textRenderer, text, maxWidth);
+    return TextTrim.trim(client.textRenderer, text, getContentWidth());
   }
 
   private MutableText getTitle() {
@@ -73,16 +72,12 @@ public class WorldPanelEntry extends AlwaysSelectedEntryListWidget.Entry<WorldPa
   @Override
   public void render(
       DrawContext drawContext,
-      int index,
-      int y,
-      int x,
-      int rowWidth,
-      int rowHeight,
       int mouseX,
       int mouseY,
       boolean hovered,
       float delta) {
-    maxWidth = rowWidth - 3;
+    int x = getX();
+    int y = getY();
     context = drawContext;
 
     renderTitle(x, y);

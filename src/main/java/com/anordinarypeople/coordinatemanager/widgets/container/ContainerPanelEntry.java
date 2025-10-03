@@ -17,7 +17,6 @@ public class ContainerPanelEntry extends AlwaysSelectedEntryListWidget.Entry<Con
   private final MinecraftClient client;
   private final int imageSize = 25;
   private DrawContext context;
-  private int maxWidth;
 
   public ContainerPanelEntry(MinecraftClient client, SelectableCoor data) {
     this.client = client;
@@ -25,7 +24,7 @@ public class ContainerPanelEntry extends AlwaysSelectedEntryListWidget.Entry<Con
   }
 
   private MutableText trim(Text text) {
-    return TextTrim.trim(client.textRenderer, text, maxWidth);
+    return TextTrim.trim(client.textRenderer, text, getContentWidth());
   }
 
   private MutableText getTitle() {
@@ -80,16 +79,12 @@ public class ContainerPanelEntry extends AlwaysSelectedEntryListWidget.Entry<Con
   @Override
   public void render(
       DrawContext drawContext,
-      int index,
-      int y,
-      int x,
-      int rowWidth,
-      int rowHeight,
       int mouseX,
       int mouseY,
       boolean hovered,
       float delta) {
-    maxWidth = rowWidth - imageSize - 3;
+    int x = getX();
+    int y = getY();
     context = drawContext;
 
     DynamicImage.render(drawContext, client, data.imagePath, x, y, imageSize);

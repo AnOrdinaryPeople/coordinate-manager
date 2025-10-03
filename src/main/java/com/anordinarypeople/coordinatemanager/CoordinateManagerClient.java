@@ -31,10 +31,10 @@ public class CoordinateManagerClient implements ClientModInitializer {
   private void registerKeys() {
     capture = KeyBindingHelper
         .registerKeyBinding(
-            new KeyBinding("keybind.capture", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_F9, "keybind.category"));
+            new KeyBinding("keybind.capture", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_F9, KeyBinding.Category.MISC));
     history = KeyBindingHelper
         .registerKeyBinding(
-            new KeyBinding("keybind.history", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_F10, "keybind.category"));
+            new KeyBinding("keybind.history", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_F10, KeyBinding.Category.MISC));
   }
 
   private void keyOnPressed() {

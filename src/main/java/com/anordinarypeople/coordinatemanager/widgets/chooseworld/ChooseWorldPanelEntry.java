@@ -29,15 +29,10 @@ public class ChooseWorldPanelEntry extends AlwaysSelectedEntryListWidget.Entry<C
   @Override
   public void render(
       DrawContext drawContext,
-      int index,
-      int y,
-      int x,
-      int rowWidth,
-      int rowHeight,
       int mouseX,
       int mouseY,
       boolean hovered,
       float delta) {
-    drawContext.drawText(client.textRenderer, getTitle(), x + 3, y + 1, Const.WHITE, true);
+    drawContext.drawText(client.textRenderer, getTitle(), getX() + 3, getY() + 1, Const.WHITE, true);
   }
 }

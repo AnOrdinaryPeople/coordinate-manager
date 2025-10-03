@@ -11,7 +11,7 @@ public class RenderHelper {
       int entryLeft,
       int entryTop,
       int entryHeight) {
-    context.fill(rowLeft - 2, entryTop - 2, rowLeft + rowWidth, entryTop + entryHeight + 2, Colors.WHITE);
-    context.fill(rowLeft - 1, entryTop - 1, rowLeft + rowWidth - 1, entryTop + entryHeight + 1, Colors.BLACK);
+    context.fill(rowLeft - 2, entryTop - 4, rowLeft + rowWidth, entryTop + entryHeight, Colors.WHITE);
+    context.fill(rowLeft - 1, entryTop - 3, rowLeft + rowWidth - 1, entryTop + entryHeight - 1, Colors.BLACK);
   }
 }

@@ -21,6 +21,8 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.input.CharInput;
+import net.minecraft.client.input.KeyInput;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -174,14 +176,14 @@ public class ManageScreen extends Screen {
   }
 
   @Override
-  public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-    return super.keyPressed(keyCode, scanCode, modifiers)
-        || searchWidget.keyPressed(keyCode, scanCode, modifiers);
+  public boolean keyPressed(KeyInput keyInput) {
+    return super.keyPressed(keyInput)
+        || searchWidget.keyPressed(keyInput);
   }
 
   @Override
-  public boolean charTyped(char chr, int keyCode) {
-    return searchWidget.charTyped(chr, keyCode);
+  public boolean charTyped(CharInput chr) {
+    return searchWidget.charTyped(chr);
   }
 
   @Override
