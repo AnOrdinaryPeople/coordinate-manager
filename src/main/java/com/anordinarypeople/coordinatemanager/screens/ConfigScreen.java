@@ -52,6 +52,13 @@ public class ConfigScreen {
                 .setSaveConsumer(newValue -> ModConfig.INSTANCE.isPreciseCoordinate = newValue)
                 .build());
 
+        general.addEntry(entryBuilder.startBooleanToggle(
+                Text.translatable("config.system_aware_copy"),
+                ModConfig.INSTANCE.systemAwareCopy)
+                .setDefaultValue(false)
+                .setSaveConsumer(newValue -> ModConfig.INSTANCE.systemAwareCopy = newValue)
+                .build());
+
         builder.setSavingRunnable(() -> ModConfig.save());
 
         return builder.build();

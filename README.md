@@ -39,6 +39,7 @@ Configurable via [Cloth Config API](https://modrinth.com/mod/cloth-config) with 
 | Capture Mode | Determines whether coordinates are saved instantly or with a pop-up for editing. | Instant |
 | Enable Thumbnail | Captures a thumbnail when saving a coordinate. | Disabled |
 | Auto-Copy on Capture | Automatically copies the saved coordinates to the clipboard upon capture. | Disabled |
+| System-Aware Copy | Formats copied coordinates according to the system's locale settings. | Disabled |
 | Capture Cooldown | Adds a delay between captures to prevent spam (set below 250ms to disable). | 250ms |
 | Precise Coordinate | Saves coordinates with decimal accuracy for better precision. | Disabled |
 

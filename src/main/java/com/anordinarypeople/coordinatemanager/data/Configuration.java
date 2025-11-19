@@ -8,4 +8,5 @@ public class Configuration {
   public boolean enableImage = false;
   public boolean autoCopy = false;
   public boolean isPreciseCoordinate = false;
+  public boolean systemAwareCopy = false;
 }

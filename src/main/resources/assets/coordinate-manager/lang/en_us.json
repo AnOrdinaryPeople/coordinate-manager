@@ -37,6 +37,7 @@
   "config.auto_copy": "Auto-Copy on Capture",
   "config.capture_cooldown": "Capture Cooldown (ms)",
   "config.precise_coordinate": "Precise Coordinate",
+  "config.system_aware_copy": "System-Aware Copy",
   "keybind.capture": "Capture Coordinate",
   "keybind.history": "Show History Coordinates",
   "keybind.category": "Coordinate Manager",
