@@ -1,6 +1,6 @@
 package com.anordinarypeople.coordinatemanager.enums;
 
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 public enum CaptureMode {
   INSTANT("config.capture_mode.instant"),
@@ -14,6 +14,6 @@ public enum CaptureMode {
 
   @Override
   public String toString() {
-    return Text.translatable(key).getString();
+    return Component.translatable(key).getString();
   }
 }

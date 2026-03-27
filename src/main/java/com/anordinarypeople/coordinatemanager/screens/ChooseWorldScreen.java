@@ -1,23 +1,23 @@
 package com.anordinarypeople.coordinatemanager.screens;
 
 import com.anordinarypeople.coordinatemanager.utils.BaseContainerScreen;
-import com.anordinarypeople.coordinatemanager.widgets.Button;
+import com.anordinarypeople.coordinatemanager.widgets.Btn;
 import com.anordinarypeople.coordinatemanager.widgets.chooseworld.ChooseWorldPanel;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 
 @Environment(EnvType.CLIENT)
 public class ChooseWorldScreen extends BaseContainerScreen {
   public final WorldNameScreen parent;
-  private final Button button = new Button(0, 0, 0, inputHeight);
+  private final Btn button = new Btn(0, 0, 0, inputHeight);
   private ChooseWorldPanel panel;
-  private TextFieldWidget input;
-  private ButtonWidget submit;
+  private EditBox input;
+  private Button submit;
   public String selected;
 
   public ChooseWorldScreen(WorldNameScreen parent) {
@@ -26,22 +26,22 @@ public class ChooseWorldScreen extends BaseContainerScreen {
   }
 
   private void renderInput() {
-    input = new TextFieldWidget(
-        textRenderer,
+    input = new EditBox(
+        font,
         padding,
         padding,
         width - padding * 2,
         inputHeight,
-        Text.empty());
-    input.setPlaceholder(Text.translatable("world_name.choose_input").setStyle(Style.EMPTY.withItalic(true)));
-    input.setChangedListener(text -> submit.active = text != null && !text.isBlank());
+        Component.empty());
+    input.setHint(Component.translatable("world_name.choose_input").setStyle(Style.EMPTY.withItalic(true)));
+    input.setResponder(text -> submit.active = text != null && !text.isBlank());
 
-    addDrawableChild(input);
+    addRenderableWidget(input);
   }
 
   private void renderPanel() {
     panel = new ChooseWorldPanel(
-        client,
+        minecraft,
         width - padding * 2,
         height - inputHeight - footerHeight - padding * 3 - 2,
         padding,
@@ -55,7 +55,7 @@ public class ChooseWorldScreen extends BaseContainerScreen {
         this);
 
     panel.showEntries();
-    addDrawableChild(panel);
+    addRenderableWidget(panel);
   }
 
   private void renderSubmitBtn() {
@@ -63,25 +63,25 @@ public class ChooseWorldScreen extends BaseContainerScreen {
     submit = button.widget("world_name.submit_choose", "world_name.submit_tooltip", b -> onSubmit());
     submit.active = false;
 
-    addDrawableChild(submit);
+    addRenderableWidget(submit);
   }
 
   private void renderBackBtn() {
     button.x = padding * 2 + button.width;
 
-    addDrawableChild(button.widget("history.back", b -> close()));
+    addRenderableWidget(button.widget("history.back", b -> onClose()));
   }
 
   private void onSubmit() {
-    String text = input.getText();
+    String text = input.getValue();
     parent.onSubmit(text != null && !text.isBlank() ? text : selected);
-    close();
+    onClose();
   }
 
   @Override
-  public void close() {
+  public void onClose() {
     parent.selected = null;
-    client.setScreen(parent);
+    minecraft.setScreen(parent);
   }
 
   @Override

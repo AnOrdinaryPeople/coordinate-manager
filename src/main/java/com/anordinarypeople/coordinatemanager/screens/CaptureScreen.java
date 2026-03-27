@@ -1,14 +1,14 @@
 package com.anordinarypeople.coordinatemanager.screens;
 
 import com.anordinarypeople.coordinatemanager.CaptureHandler;
-import com.anordinarypeople.coordinatemanager.widgets.Button;
+import com.anordinarypeople.coordinatemanager.widgets.Btn;
 import com.anordinarypeople.coordinatemanager.widgets.TextField;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 
 @Environment(EnvType.CLIENT)
 public class CaptureScreen extends Screen {
@@ -18,16 +18,16 @@ public class CaptureScreen extends Screen {
   private final int buttonHeight = 20;
   private final int footerHeight = 25;
   private final TextField textField = new TextField(null, 0, 0, 0, inputHeight);
-  private final Button button = new Button(0, 0, 0, buttonHeight);
-  private TextFieldWidget nameField;
-  private TextFieldWidget xField;
-  private TextFieldWidget yField;
-  private TextFieldWidget zField;
+  private final Btn button = new Btn(0, 0, 0, buttonHeight);
+  private EditBox nameField;
+  private EditBox xField;
+  private EditBox yField;
+  private EditBox zField;
   private int fieldWidth;
   private boolean isSaved = false;
 
   public CaptureScreen(CaptureHandler handler) {
-    super(Text.translatable("capture.title"));
+    super(Component.translatable("capture.title"));
 
     this.handler = handler;
   }
@@ -35,10 +35,10 @@ public class CaptureScreen extends Screen {
   private void renderSubmitBtn() {
     button.x = padding;
 
-    addDrawableChild(button.widget(
+    addRenderableWidget(button.widget(
         "capture.submit",
         b -> {
-          String name = nameField.getText();
+          String name = nameField.getValue();
           isSaved = true;
 
           handler.name = name.isBlank() || name.isEmpty() ? null : name;
@@ -47,23 +47,23 @@ public class CaptureScreen extends Screen {
           handler.z = getNumber(zField);
 
           handler.saveCoordinate();
-          close();
+          onClose();
         }));
   }
 
   private void renderBackBtn() {
     button.x = padding * 2 + button.width;
 
-    addDrawableChild(button.widget(
+    addRenderableWidget(button.widget(
         "history.back",
-        b -> close()));
+        b -> onClose()));
   }
 
-  private double getNumber(TextFieldWidget field) {
+  private double getNumber(EditBox field) {
     double number;
 
     try {
-      number = Double.valueOf(field.getText());
+      number = Double.valueOf(field.getValue());
     } catch (Exception e) {
       number = 0;
     }
@@ -71,46 +71,46 @@ public class CaptureScreen extends Screen {
     return number;
   }
 
-  private TextFieldWidget renderNameField(String translationKey) {
+  private EditBox renderNameField(String translationKey) {
     textField.x = (width / 2) - fieldWidth / 2;
     textField.y = padding;
-    addDrawableChild(textField.label(translationKey));
+    addRenderableWidget(textField.label(translationKey));
 
     textField.y = inputHeight + padding;
-    TextFieldWidget field = textField.input("");
-    addDrawableChild(field);
+    EditBox field = textField.input("");
+    addRenderableWidget(field);
 
     return field;
   }
 
-  private TextFieldWidget renderInputField(String translationKey, double value) {
+  private EditBox renderInputField(String translationKey, double value) {
     int originalX = textField.x;
 
     textField.x = textField.x / 2 - padding * 2;
     textField.y += inputHeight + padding;
 
-    addDrawableChild(textField.label(translationKey));
+    addRenderableWidget(textField.label(translationKey));
 
     textField.x = originalX;
-    TextFieldWidget field = textField.input(String.valueOf(value));
-    addDrawableChild(field);
+    EditBox field = textField.input(String.valueOf(value));
+    addRenderableWidget(field);
 
     return field;
   }
 
   @Override
-  public void close() {
+  public void onClose() {
     if (!isSaved) {
       handler.deleteImage();
     }
 
-    super.close();
+    super.onClose();
   }
 
   @Override
   protected void init() {
     fieldWidth = width / 3;
-    textField.textRenderer = textRenderer;
+    textField.textRenderer = font;
     textField.width = width / 3;
 
     nameField = renderNameField("capture.name");

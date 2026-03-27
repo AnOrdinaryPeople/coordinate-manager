@@ -6,14 +6,14 @@ import com.anordinarypeople.coordinatemanager.cache.WorldCache;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientPacketListener;
 
 public class CoordinateManager implements ModInitializer {
-  private String getWorld(ClientPlayNetworkHandler handler, MinecraftClient client) {
-    return client.isInSingleplayer()
-        ? client.getServer().getSaveProperties().getLevelName()
-        : handler.getConnection().getAddress().toString();
+  private String getWorld(ClientPacketListener handler, Minecraft client) {
+    return client.hasSingleplayerServer()
+        ? client.getSingleplayerServer().getWorldData().getLevelName()
+        : handler.getConnection().getRemoteAddress().toString();
   }
 
   @Override
@@ -22,7 +22,7 @@ public class CoordinateManager implements ModInitializer {
     WorldCache.load();
 
     ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
-      WorldCache.IS_SINGLEPLAYER = client.isInSingleplayer() ? 1 : 0;
+      WorldCache.IS_SINGLEPLAYER = client.hasSingleplayerServer() ? 1 : 0;
       Coordinate.load(getWorld(handler, client));
     });
 

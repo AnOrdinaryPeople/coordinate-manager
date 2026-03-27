@@ -1,24 +1,15 @@
 package com.anordinarypeople.coordinatemanager.utils;
 
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.StringVisitable;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.Font;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
 
 public class TextTrim {
-  public static MutableText trim(TextRenderer font, Text text, int maxWidth) {
-    StringVisitable trimmedName = text;
-
-    if (font.getWidth(text) > maxWidth) {
-      StringVisitable ellipsis = StringVisitable.plain("...");
-
-      trimmedName = StringVisitable.concat(
-          font.trimToWidth(
-              text,
-              maxWidth - font.getWidth(ellipsis)),
-          ellipsis);
+  public static MutableComponent trim(Font font, Component text, int maxWidth) {
+    if (font.width(text) > maxWidth) {
+      String trimmed = font.plainSubstrByWidth(text.getString(), maxWidth - font.width("..."));
+      return Component.literal(trimmed + "...");
     }
-
-    return Text.literal(trimmedName.getString());
+    return Component.literal(text.getString());
   }
 }

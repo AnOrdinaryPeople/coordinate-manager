@@ -10,19 +10,19 @@ import com.anordinarypeople.coordinatemanager.data.EmptyWorld;
 import com.anordinarypeople.coordinatemanager.screens.WorldNameScreen;
 import com.anordinarypeople.coordinatemanager.utils.RenderHelper;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.ObjectSelectionList;
+import net.minecraft.util.Mth;
 
-public class EmptyWorldPanel extends AlwaysSelectedEntryListWidget<EmptyWorldPanelEntry> implements AutoCloseable {
+public class EmptyWorldPanel extends ObjectSelectionList<EmptyWorldPanelEntry> implements AutoCloseable {
   private final WorldNameScreen parent;
   private final List<EmptyWorld> list;
   private Consumer<EmptyWorld> onSelected;
-  private DrawContext context;
+  private GuiGraphicsExtractor context;
 
   public EmptyWorldPanel(
-      MinecraftClient client,
+      Minecraft client,
       int width,
       int height,
       int x,
@@ -45,15 +45,15 @@ public class EmptyWorldPanel extends AlwaysSelectedEntryListWidget<EmptyWorldPan
   }
 
   private void drawItem(int entryCount, int index, int entryTop, int mouseX, int mouseY, float delta) {
-    final int entryHeight = itemHeight - 5;
+    final int entryHeight = defaultEntryHeight - 5;
     final int rowWidth = getRowWidth();
     EmptyWorldPanelEntry entry = getEntry(index);
 
     if (parent.selected != null && parent.selected.index == entry.data.index) {
-      drawSelected(entryTop, entryHeight, getRowLeft() - 2, rowWidth);
+      RenderHelper.drawSelected(context, getRowLeft(), rowWidth, getRowLeft() - 2, entryTop, entryHeight);
     }
 
-    entry.render(
+    entry.extractContent(
         context,
         mouseX,
         mouseY,
@@ -62,22 +62,12 @@ public class EmptyWorldPanel extends AlwaysSelectedEntryListWidget<EmptyWorldPan
         delta);
   }
 
-  private void drawSelected(int entryTop, int entryHeight, int entryLeft, int rowWidth) {
-    RenderHelper.drawSelected(
-        context,
-        getRowLeft(),
-        rowWidth,
-        entryLeft,
-        entryTop,
-        entryHeight);
-  }
-
   private EmptyWorldPanelEntry getEntryAtPos(int entryCount, double x, double y) {
-    final int entryY = MathHelper.floor(y - ((double) getY()) + (int) getScrollY());
-    final int index = entryY / itemHeight;
+    final int entryY = Mth.floor(y - ((double) getY()) + (int) scrollAmount());
+    final int index = entryY / defaultEntryHeight;
     final int rowLeft = getRowLeft();
 
-    return x < (double) getScrollbarX()
+    return x < (double) scrollBarX()
         && x >= (double) rowLeft
         && x <= ((double) rowLeft + getRowRight())
         && index >= 0
@@ -88,10 +78,10 @@ public class EmptyWorldPanel extends AlwaysSelectedEntryListWidget<EmptyWorldPan
   }
 
   private void scrollToTop() {
-    final int max = Math.max(0, getContentsHeightWithPadding() - getBottom() - getY() - 4);
+    final int max = Math.max(0, contentHeight() - getBottom() - getY() - 4);
 
-    if (getScrollY() > max) {
-      setScrollY(max);
+    if (scrollAmount() > max) {
+      setScrollAmount(max);
     }
   }
 
@@ -106,7 +96,7 @@ public class EmptyWorldPanel extends AlwaysSelectedEntryListWidget<EmptyWorldPan
         continue;
       }
 
-      addEntry(new EmptyWorldPanelEntry(client, empty, position));
+      addEntry(new EmptyWorldPanelEntry(minecraft, empty, position));
     }
 
     scrollToTop();
@@ -128,7 +118,7 @@ public class EmptyWorldPanel extends AlwaysSelectedEntryListWidget<EmptyWorldPan
   @Override
   public int getRowWidth() {
     return width
-        - (Math.max(0, getContentsHeightWithPadding() - (getBottom() - getY() - 4)) > 0 ? 18 : 12);
+        - (Math.max(0, contentHeight() - (getBottom() - getY() - 4)) > 0 ? 18 : 12);
   }
 
   @Override
@@ -137,13 +127,13 @@ public class EmptyWorldPanel extends AlwaysSelectedEntryListWidget<EmptyWorldPan
   }
 
   @Override
-  protected void renderList(DrawContext drawContext, int mouseX, int mouseY, float delta) {
-    final int entryCount = getEntryCount();
+  protected void extractListItems(GuiGraphicsExtractor drawContext, int mouseX, int mouseY, float delta) {
+    final int entryCount = getItemCount();
     context = drawContext;
 
     for (int i = 0; i < entryCount; i++) {
       int entryTop = getRowTop(i) + 2;
-      int entryBottom = getRowTop(i) + itemHeight + 2;
+      int entryBottom = getRowTop(i) + defaultEntryHeight + 2;
 
       if (entryBottom >= getY() && entryTop <= getBottom()) {
         drawItem(entryCount, i, entryTop, mouseX, mouseY, delta);

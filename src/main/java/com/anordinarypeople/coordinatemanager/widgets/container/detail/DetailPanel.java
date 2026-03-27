@@ -2,38 +2,38 @@ package com.anordinarypeople.coordinatemanager.widgets.container.detail;
 
 import com.anordinarypeople.coordinatemanager.data.SelectableCoor;
 import com.anordinarypeople.coordinatemanager.screens.HistoryScreen;
-import com.anordinarypeople.coordinatemanager.widgets.Button;
+import com.anordinarypeople.coordinatemanager.widgets.Btn;
 import com.anordinarypeople.coordinatemanager.widgets.TextField;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.gui.widget.TextWidget;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.StringWidget;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 
 public class DetailPanel extends DetailPanelBg {
   private final int inputHeight = 15;
   private final int baseWidth;
   private final HistoryScreen parent;
   private final TextField textField;
-  private final Button button;
-  public final TextWidget description;
-  public final TextFieldWidget nameField;
-  public final TextFieldWidget xField;
-  public final TextFieldWidget yField;
-  public final TextFieldWidget zField;
-  public ButtonWidget favoriteButton;
-  public ButtonWidget copyButton;
-  public ButtonWidget selectButton;
-  public ButtonWidget deleteButton;
-  public ButtonWidget saveButton;
+  private final Btn button;
+  public final StringWidget description;
+  public final EditBox nameField;
+  public final EditBox xField;
+  public final EditBox yField;
+  public final EditBox zField;
+  public Button favoriteButton;
+  public Button copyButton;
+  public Button selectButton;
+  public Button deleteButton;
+  public Button saveButton;
 
   public DetailPanel(
       HistoryScreen screen,
-      TextRenderer textRenderer,
-      MinecraftClient client,
+      Font textRenderer,
+      Minecraft client,
       int x,
       int y,
       int width,
@@ -52,25 +52,25 @@ public class DetailPanel extends DetailPanelBg {
     description = textField.label("history.description.detail");
     textField.y = y + imageSize + padding * 2;
     nameField = textField.input("");
-    nameField.setPlaceholder(placeholder("detail.name"));
+    nameField.setHint(placeholder("detail.name"));
     nameField.visible = false;
     xField = renderInputField("detail.x");
     yField = renderInputField("detail.y");
     zField = renderInputField("detail.z");
 
-    button = new Button(textField.x, textField.y + inputHeight + padding, baseWidth / 2, inputHeight);
+    button = new Btn(textField.x, textField.y + inputHeight + padding, baseWidth / 2, inputHeight);
     renderButtons();
   }
 
-  private Text placeholder(String translationKey) {
-    return Text.translatable(translationKey).setStyle(Style.EMPTY.withItalic(true));
+  private Component placeholder(String translationKey) {
+    return Component.translatable(translationKey).setStyle(Style.EMPTY.withItalic(true));
   }
 
-  private TextFieldWidget renderInputField(String translationKey) {
+  private EditBox renderInputField(String translationKey) {
     textField.y += inputHeight + padding;
 
-    TextFieldWidget field = textField.input("");
-    field.setPlaceholder(placeholder(translationKey));
+    EditBox field = textField.input("");
+    field.setHint(placeholder(translationKey));
     field.visible = false;
 
     return field;
@@ -115,31 +115,31 @@ public class DetailPanel extends DetailPanelBg {
     saveButton.visible = false;
   }
 
-  private void onClickPin(ButtonWidget b) {
-    boolean isPinned = b.getMessage().equals(Text.translatable("detail.favorite"));
+  private void onClickPin(Button b) {
+    boolean isPinned = b.getMessage().equals(Component.translatable("detail.favorite"));
 
     parent.onClickPin();
 
-    b.setMessage(Text.translatable(isPinned ? "detail.unfavorite" : "detail.favorite"));
+    b.setMessage(Component.translatable(isPinned ? "detail.unfavorite" : "detail.favorite"));
     deleteButton.active = !isPinned;
   }
 
-  private void onClickSelect(ButtonWidget b) {
-    boolean isSelected = b.getMessage().equals(Text.translatable("detail.select"));
+  private void onClickSelect(Button b) {
+    boolean isSelected = b.getMessage().equals(Component.translatable("detail.select"));
 
     parent.onClickSelect();
 
-    b.setMessage(Text.translatable(isSelected ? "detail.unselect" : "detail.select"));
+    b.setMessage(Component.translatable(isSelected ? "detail.unselect" : "detail.select"));
   }
 
   public void updateDetail(SelectableCoor data) {
     if (data != null) {
-      nameField.setText(data.name != null && !data.name.isBlank() ? data.name : "");
-      xField.setText(Double.toString(data.x));
-      yField.setText(Double.toString(data.y));
-      zField.setText(Double.toString(data.z));
-      favoriteButton.setMessage(Text.translatable(data.isPinned ? "detail.unfavorite" : "detail.favorite"));
-      selectButton.setMessage(Text.translatable(data.isSelected ? "detail.unselect" : "detail.select"));
+      nameField.setValue(data.name != null && !data.name.isBlank() ? data.name : "");
+      xField.setValue(Double.toString(data.x));
+      yField.setValue(Double.toString(data.y));
+      zField.setValue(Double.toString(data.z));
+      favoriteButton.setMessage(Component.translatable(data.isPinned ? "detail.unfavorite" : "detail.favorite"));
+      selectButton.setMessage(Component.translatable(data.isSelected ? "detail.unselect" : "detail.select"));
       deleteButton.active = !data.isPinned;
       toggleDetail(true);
     } else {

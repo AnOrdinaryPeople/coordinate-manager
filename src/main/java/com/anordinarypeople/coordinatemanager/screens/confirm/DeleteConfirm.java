@@ -6,9 +6,9 @@ import com.anordinarypeople.coordinatemanager.utils.BaseScreen;
 import com.anordinarypeople.coordinatemanager.utils.DimensionColor;
 import com.anordinarypeople.coordinatemanager.utils.DynamicImage;
 
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 
 public class DeleteConfirm extends BaseScreen {
   private final HistoryScreen history;
@@ -20,11 +20,11 @@ public class DeleteConfirm extends BaseScreen {
     history = parent;
   }
 
-  private void renderImage(DrawContext context) {
+  private void renderImage(GuiGraphicsExtractor context) {
     if (history.currentData.imagePath != null) {
       DynamicImage.render(
           context,
-          client,
+          minecraft,
           history.currentData.imagePath,
           (width - imageSize) / 2,
           imageY,
@@ -33,36 +33,36 @@ public class DeleteConfirm extends BaseScreen {
   }
 
   private void renderConfirmation() {
-    textField.text = trim(Text.translatable("delete.message"));
+    textField.text = trim(Component.translatable("delete.message"));
     int widthText = getWidthText(textField.text);
     textField.x = centerX - widthText / 2;
     textField.width = widthText;
 
-    addDrawableChild(textField.label());
+    addRenderableWidget(textField.label());
   }
 
   private void renderWorld() {
     textField.text = trim(
         history.currentData.name != null
-            ? Text.literal(
+            ? Component.literal(
                 history.currentData.name)
-            : Text.translatable("container.unnamed"))
+            : Component.translatable("container.unnamed"))
         .setStyle(Style.EMPTY.withBold(true));
     int widthText = getWidthText(textField.text);
     textField.x = centerX - widthText / 2;
     textField.y += baseHeight - history.padding;
     textField.width = widthText;
 
-    addDrawableChild(textField.label());
+    addRenderableWidget(textField.label());
   }
 
   private void renderDetail() {
-    textField.text = Text.translatable(
+    textField.text = Component.translatable(
         history.currentData.dimension)
         .setStyle(Style.EMPTY.withColor(DimensionColor.get(
             history.currentData.dimension)))
-        .append(Text.literal(" "))
-        .append(trim(Text.literal(
+        .append(Component.literal(" "))
+        .append(trim(Component.literal(
             String.format(
                 Const.COORDINATE,
                 history.currentData.x,
@@ -74,20 +74,20 @@ public class DeleteConfirm extends BaseScreen {
     textField.y += baseHeight - history.padding;
     textField.width = widthText;
 
-    addDrawableChild(textField.label());
+    addRenderableWidget(textField.label());
   }
 
   private void renderConfirm() {
     button.width -= 4;
-    addDrawableChild(button.widget("delete.yes", b -> {
+    addRenderableWidget(button.widget("delete.yes", b -> {
       history.deleteConfirmed();
-      close();
+      onClose();
     }));
   }
 
   private void renderBack() {
     button.x += buttonWidth + 2;
-    addDrawableChild(button.widget("delete.no", b -> close()));
+    addRenderableWidget(button.widget("delete.no", b -> onClose()));
   }
 
   @Override
@@ -104,8 +104,8 @@ public class DeleteConfirm extends BaseScreen {
   }
 
   @Override
-  public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-    super.render(context, mouseX, mouseY, delta);
+  public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+    super.extractRenderState(context, mouseX, mouseY, delta);
     renderImage(context);
   }
 }

@@ -21,7 +21,7 @@ import com.anordinarypeople.coordinatemanager.utils.BaseContainerScreen;
 import com.anordinarypeople.coordinatemanager.utils.Console;
 import com.anordinarypeople.coordinatemanager.utils.LoadFileFromLoader;
 import com.anordinarypeople.coordinatemanager.utils.TextTrim;
-import com.anordinarypeople.coordinatemanager.widgets.Button;
+import com.anordinarypeople.coordinatemanager.widgets.Btn;
 import com.anordinarypeople.coordinatemanager.widgets.TextField;
 import com.anordinarypeople.coordinatemanager.widgets.container.ContainerPanel;
 import com.anordinarypeople.coordinatemanager.widgets.empty.EmptyWorldPanel;
@@ -30,24 +30,24 @@ import com.google.gson.GsonBuilder;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 
 @Environment(EnvType.CLIENT)
 public class WorldNameScreen extends BaseContainerScreen {
   private final Console logger = new Console("WorldNameScreen");
-  private final Button button = new Button(0, 0, 0, inputHeight);
+  private final Btn button = new Btn(0, 0, 0, inputHeight);
   private final String coordinatePath = "coordinatemanager/coordinates";
   private final Screen parent;
   private final List<EmptyWorld> data;
   private EmptyWorldPanel leftPanel;
   private ContainerPanel containerPanel;
-  private ButtonWidget selectWidget;
-  private ButtonWidget submit;
+  private Button selectWidget;
+  private Button submit;
   private int totalInputHeight;
   private int leftPanelWidth;
   private int containerWidth;
@@ -120,19 +120,19 @@ public class WorldNameScreen extends BaseContainerScreen {
 
   private void renderTitle() {
     int height = 15;
-    TextField desc1 = new TextField(textRenderer, padding, padding, width, height);
-    TextField desc2 = new TextField(textRenderer, padding, padding + height, width, height);
+    TextField desc1 = new TextField(font, padding, padding, width, height);
+    TextField desc2 = new TextField(font, padding, padding + height, width, height);
     totalInputHeight = height * 2;
 
-    desc1.text = Text.translatable("world_name.description").setStyle(Style.EMPTY.withColor(Const.YELLOW));
+    desc1.text = Component.translatable("world_name.description").setStyle(Style.EMPTY.withColor(Const.YELLOW));
 
-    addDrawableChild(desc1.label());
-    addDrawableChild(desc2.label("world_name.description_2"));
+    addRenderableWidget(desc1.label());
+    addRenderableWidget(desc2.label("world_name.description_2"));
   }
 
   private void renderList() {
     leftPanel = new EmptyWorldPanel(
-        client,
+        minecraft,
         leftPanelWidth,
         height - totalInputHeight - footerHeight - padding * 3 - 2,
         padding,
@@ -142,31 +142,31 @@ public class WorldNameScreen extends BaseContainerScreen {
         data -> {
           selected = data;
           selectWidget.setMessage(data.name != null
-              ? trim(Text.literal(data.name))
-              : Text.translatable("world_name.select"));
+              ? trim(Component.literal(data.name))
+              : Component.translatable("world_name.select"));
           containerPanel.list = data.data;
           hasRendered = false;
         },
         this);
 
     leftPanel.showEntries();
-    addDrawableChild(leftPanel);
+    addRenderableWidget(leftPanel);
   }
 
   private void renderSelect() {
     int x = leftPanelWidth + padding * 2;
     int y = padding * 2 + totalInputHeight;
-    Button button = new Button(x, y, containerWidth, inputHeight);
+    Btn button = new Btn(x, y, containerWidth, inputHeight);
 
     selectWidget = button.widget("world_name.select", b -> onSelect());
     selectWidget.active = false;
 
-    addDrawableChild(selectWidget);
+    addRenderableWidget(selectWidget);
   }
 
   private void renderContainer() {
     containerPanel = new ContainerPanel(
-        client,
+        minecraft,
         containerWidth,
         height - totalInputHeight - inputHeight - footerHeight - padding * 4 - 2,
         leftPanelWidth + padding * 2,
@@ -177,44 +177,44 @@ public class WorldNameScreen extends BaseContainerScreen {
         false);
 
     containerPanel.filter("");
-    addDrawableChild(containerPanel);
+    addRenderableWidget(containerPanel);
   }
 
   private void renderSubmitBtn() {
     button.x = padding;
 
-    submit = ButtonWidget.builder(submitText(), b -> onSubmitWorlds())
-        .dimensions(button.x, button.y, button.width, button.height)
+    submit = Button.builder(submitText(), b -> onSubmitWorlds())
+        .bounds(button.x, button.y, button.width, button.height)
         .build();
     submit.active = false;
 
-    addDrawableChild(submit);
+    addRenderableWidget(submit);
   }
 
   private void renderBackBtn() {
     button.x = padding * 2 + button.width;
 
-    addDrawableChild(button.widget("history.back", b -> close()));
+    addRenderableWidget(button.widget("history.back", b -> onClose()));
   }
 
-  private MutableText trim(Text text) {
-    return TextTrim.trim(textRenderer, text, containerWidth - padding * 2);
+  private MutableComponent trim(Component text) {
+    return TextTrim.trim(font, text, containerWidth - padding * 2);
   }
 
-  private MutableText submitText() {
+  private MutableComponent submitText() {
     int size = data.size();
 
     if (size != totalSubmitted) {
       int temp = size - totalSubmitted;
-      return Text.translatable("world_name.submit_more", temp > 99 ? "99+" : temp);
+      return Component.translatable("world_name.submit_more", temp > 99 ? "99+" : temp);
     }
 
-    return Text.translatable("world_name.submit");
+    return Component.translatable("world_name.submit");
   }
 
   private void onSelect() {
     initWorlds();
-    client.setScreen(new ChooseWorldScreen(this));
+    minecraft.setScreen(new ChooseWorldScreen(this));
   }
 
   public void onSubmit(String worldName) {
@@ -285,12 +285,12 @@ public class WorldNameScreen extends BaseContainerScreen {
       logger.errorFile("write JSON", file, e);
     }
     WorldCache.load();
-    client.setScreen(new ManageScreen(parent));
+    minecraft.setScreen(new ManageScreen(parent));
   }
 
   @Override
-  public void close() {
-    client.setScreen(parent);
+  public void onClose() {
+    minecraft.setScreen(parent);
   }
 
   @Override
@@ -312,8 +312,8 @@ public class WorldNameScreen extends BaseContainerScreen {
   }
 
   @Override
-  public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-    super.render(context, mouseX, mouseY, delta);
+  public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+    super.extractRenderState(context, mouseX, mouseY, delta);
 
     if (selected != null && !hasRendered) {
       hasRendered = true;

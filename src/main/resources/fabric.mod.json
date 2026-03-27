@@ -1,33 +1,33 @@
 {
-	"schemaVersion": 1,
-	"id": "coordinate-manager",
-	"version": "${version}",
-	"name": "Coordinate Manager",
-	"description": "Capture, organize, and manage coordinates with more controls.",
-	"authors": [
-		"AnOrdinaryPeople"
-	],
-	"contact": {
-		"sources": "https://github.com/AnOrdinaryPeople/coordinate-manager"
-	},
-	"license": "MIT",
-	"icon": "assets/coordinate-manager/icon.png",
-	"environment": "*",
-	"entrypoints": {
-		"main": [
-			"com.anordinarypeople.coordinatemanager.CoordinateManager"
-		],
-		"client": [
-			"com.anordinarypeople.coordinatemanager.CoordinateManagerClient"
-		],
-		"modmenu": [
-			"com.anordinarypeople.coordinatemanager.ModIntegration"
-		]
-	},
-	"depends": {
-		"fabricloader": ">=0.18.2",
-		"minecraft": "~1.21.11",
-		"java": ">=21",
-		"fabric-api": "*"
-	}
+  "schemaVersion": 1,
+  "id": "coordinate-manager",
+  "version": "${version}",
+  "name": "Coordinate Manager",
+  "description": "Capture, organize, and manage coordinates with more controls.",
+  "authors": [
+    "AnOrdinaryPeople"
+  ],
+  "contact": {
+    "sources": "https://github.com/AnOrdinaryPeople/coordinate-manager"
+  },
+  "license": "MIT",
+  "icon": "assets/coordinate-manager/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.anordinarypeople.coordinatemanager.CoordinateManager"
+    ],
+    "client": [
+      "com.anordinarypeople.coordinatemanager.CoordinateManagerClient"
+    ],
+    "modmenu": [
+      "com.anordinarypeople.coordinatemanager.ModIntegration"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.18.4",
+    "minecraft": "~26.1",
+    "java": ">=25",
+    "fabric-api": "*"
+  }
 }

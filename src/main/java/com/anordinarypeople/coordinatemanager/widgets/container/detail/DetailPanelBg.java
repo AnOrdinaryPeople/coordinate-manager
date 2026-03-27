@@ -5,12 +5,12 @@ import com.anordinarypeople.coordinatemanager.data.CoordinateData;
 import com.anordinarypeople.coordinatemanager.utils.DimensionColor;
 import com.anordinarypeople.coordinatemanager.utils.DynamicImage;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.network.chat.Component;
 
 public class DetailPanelBg {
-  private final MinecraftClient client;
+  private final Minecraft client;
   protected final int left;
   protected final int imageSize = 32;
   protected final int padding = 5;
@@ -19,7 +19,7 @@ public class DetailPanelBg {
   protected final int width;
   protected final int height;
 
-  public DetailPanelBg(MinecraftClient client, int x, int y, int width, int height) {
+  public DetailPanelBg(Minecraft client, int x, int y, int width, int height) {
     this.client = client;
     this.x = x;
     this.y = y;
@@ -28,7 +28,7 @@ public class DetailPanelBg {
     this.left = x + width;
   }
 
-  public void renderImage(DrawContext context, CoordinateData data) {
+  public void renderImage(GuiGraphicsExtractor context, CoordinateData data) {
     DynamicImage.render(
         context,
         client,
@@ -36,20 +36,20 @@ public class DetailPanelBg {
         left - width + padding,
         y + padding,
         imageSize);
-    context.drawText(
-        client.textRenderer,
-        Text.translatable(data.dimension),
+    context.text(
+        client.font,
+        Component.translatable(data.dimension),
         x + imageSize + padding * 2,
         y + padding,
         DimensionColor.get(data.dimension),
         true);
 
     if (data.isPinned) {
-      context.drawText(
-          client.textRenderer,
-          Text.translatable("detail.favorited"),
+      context.text(
+          client.font,
+          Component.translatable("detail.favorited"),
           x + imageSize + padding * 2,
-          y + client.textRenderer.fontHeight + padding + 2,
+          y + client.font.lineHeight + padding + 2,
           Const.DARK_GREEN,
           true);
     }

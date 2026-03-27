@@ -23,18 +23,19 @@ import com.anordinarypeople.coordinatemanager.utils.Console;
 import com.anordinarypeople.coordinatemanager.utils.CopyXYZ;
 import com.anordinarypeople.coordinatemanager.utils.LoadFileFromLoader;
 import com.anordinarypeople.coordinatemanager.utils.Messager;
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.platform.NativeImage;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.Framebuffer;
-import net.minecraft.client.util.ScreenshotRecorder;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.text.Text;
-import net.minecraft.world.World;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.Screenshot;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
 
 public class CaptureHandler {
   private final Console logger = new Console("capture-handler");
-  private RegistryKey<World> dimension;
-  private MinecraftClient client;
+  private ResourceKey<Level> dimension;
+  private Minecraft client;
   private CaptureScreen screen;
   private String imagePath = null;
   public String name = null;
@@ -47,11 +48,11 @@ public class CaptureHandler {
   }
 
   private String getDimension() {
-    if (dimension == World.OVERWORLD) {
+    if (dimension == Level.OVERWORLD) {
       return Const.OVERWORLD;
-    } else if (dimension == World.NETHER) {
+    } else if (dimension == Level.NETHER) {
       return Const.NETHER;
-    } else if (dimension == World.END) {
+    } else if (dimension == Level.END) {
       return Const.END;
     }
 
@@ -59,7 +60,7 @@ public class CaptureHandler {
   }
 
   private void createImage() {
-    Framebuffer framebuffer = client.getFramebuffer();
+    RenderTarget framebuffer = client.getMainRenderTarget();
     File path = LoadFileFromLoader.fabric(Const.MODID);
     String filename = String.format(
         "%s_%s.png",
@@ -67,14 +68,17 @@ public class CaptureHandler {
         getCoordinate().replaceAll("[XYZ.\\-:, ]+", ""));
     File imageFile = new File(path, "screenshots/" + filename);
 
-    ScreenshotRecorder.saveScreenshot(path, filename, framebuffer, 1, successText -> virtualProcess(imageFile));
+    imageFile.getParentFile().mkdirs();
+
+    Screenshot.takeScreenshot(framebuffer, nativeImage -> virtualProcess(nativeImage, imageFile));
 
     imagePath = imageFile.getAbsolutePath();
   }
 
-  private void virtualProcess(File imageFile) {
+  private void virtualProcess(NativeImage nativeImage, File imageFile) {
     Thread.ofVirtual().start(() -> {
       try {
+        nativeImage.writeToFile(imageFile);
         BufferedImage original = ImageIO.read(imageFile);
         BufferedImage resized = new BufferedImage(128, 128, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = resized.createGraphics();
@@ -94,13 +98,11 @@ public class CaptureHandler {
   }
 
   private void message() {
-    client.player.sendMessage(
+    client.player.sendSystemMessage(
         Messager.info(
             ModConfig.INSTANCE.autoCopy ? "capture.success_with_copy" : "capture.success",
             getCoordinate(),
-            Text.translatable(
-                getDimension())),
-        false);
+            Component.translatable(getDimension())));
   }
 
   public void saveCoordinate() {
@@ -118,9 +120,9 @@ public class CaptureHandler {
     new File(imagePath).delete();
   }
 
-  public void store(MinecraftClient mcClient) {
+  public void store(Minecraft mcClient) {
     client = mcClient;
-    dimension = client.world.getRegistryKey();
+    dimension = client.level.dimension();
     x = rounded(client.player.getX());
     y = rounded(client.player.getY());
     z = rounded(client.player.getZ());

@@ -11,22 +11,22 @@ import com.anordinarypeople.coordinatemanager.data.SelectableCoor;
 import com.anordinarypeople.coordinatemanager.utils.BaseContainerScreen;
 import com.anordinarypeople.coordinatemanager.utils.RenderHelper;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.ObjectSelectionList;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.util.Mth;
 
-public class ContainerPanel extends AlwaysSelectedEntryListWidget<ContainerPanelEntry> implements AutoCloseable {
+public class ContainerPanel extends ObjectSelectionList<ContainerPanelEntry> implements AutoCloseable {
   private final BaseContainerScreen parent;
   private final boolean selectable;
-  private MutableText description;
-  private DrawContext context;
+  private MutableComponent description;
+  private GuiGraphicsExtractor context;
   public ListSelectableCoor list;
 
   public ContainerPanel(
-      MinecraftClient client,
+      Minecraft client,
       int width,
       int height,
       int x,
@@ -52,15 +52,15 @@ public class ContainerPanel extends AlwaysSelectedEntryListWidget<ContainerPanel
   }
 
   private void drawItem(int entryCount, int index, int entryTop, int mouseX, int mouseY, float delta) {
-    final int entryHeight = itemHeight - 5;
+    final int entryHeight = defaultEntryHeight - 5;
     final int rowWidth = getRowWidth();
     ContainerPanelEntry entry = getEntry(index);
 
     if (parent.currentData != null && entry.data.uuid.equals(parent.currentData.uuid)) {
-      drawSelected(entryTop, entryHeight, getRowLeft() - 2, rowWidth);
+      RenderHelper.drawSelected(context, getRowLeft(), rowWidth, getRowLeft() - 2, entryTop, entryHeight);
     }
 
-    entry.render(
+    entry.extractContent(
         context,
         mouseX,
         mouseY,
@@ -69,22 +69,12 @@ public class ContainerPanel extends AlwaysSelectedEntryListWidget<ContainerPanel
         delta);
   }
 
-  private void drawSelected(int entryTop, int entryHeight, int entryLeft, int rowWidth) {
-    RenderHelper.drawSelected(
-        context,
-        getRowLeft(),
-        rowWidth,
-        entryLeft,
-        entryTop,
-        entryHeight);
-  }
-
   private ContainerPanelEntry getEntryAtPos(int entryCount, double x, double y) {
-    final int entryY = MathHelper.floor(y - ((double) getY()) + (int) getScrollY());
-    final int index = entryY / itemHeight;
+    final int entryY = Mth.floor(y - ((double) getY()) + (int) scrollAmount());
+    final int index = entryY / defaultEntryHeight;
     final int rowLeft = getRowLeft();
 
-    return x < (double) getScrollbarX()
+    return x < (double) scrollBarX()
         && x >= (double) rowLeft
         && x <= ((double) rowLeft + getRowRight())
         && index >= 0
@@ -95,16 +85,16 @@ public class ContainerPanel extends AlwaysSelectedEntryListWidget<ContainerPanel
   }
 
   private void scrollToTop() {
-    final int max = Math.max(0, getContentsHeightWithPadding() - getBottom() - getY() - 4);
+    final int max = Math.max(0, contentHeight() - getBottom() - getY() - 4);
 
-    if (getScrollY() > max) {
-      setScrollY(max);
+    if (scrollAmount() > max) {
+      setScrollAmount(max);
     }
   }
 
   public void filter(String keyword) {
     if (list == null || list.size() == 0) {
-      description = Text.translatable(selectable
+      description = Component.translatable(selectable
           ? "container.description"
           : "container.description_empty_world");
       return;
@@ -122,11 +112,11 @@ public class ContainerPanel extends AlwaysSelectedEntryListWidget<ContainerPanel
           pattern.matcher(Double.toString(data.y)).find() ||
           pattern.matcher(Double.toString(data.z)).find())) {
         clearDescription = true;
-        addEntry(new ContainerPanelEntry(client, data));
+        addEntry(new ContainerPanelEntry(minecraft, data));
       }
     }
 
-    description = clearDescription ? null : Text.translatable("container.description_not_found");
+    description = clearDescription ? null : Component.translatable("container.description_not_found");
     scrollToTop();
   }
 
@@ -150,7 +140,7 @@ public class ContainerPanel extends AlwaysSelectedEntryListWidget<ContainerPanel
   @Override
   public int getRowWidth() {
     return width
-        - (Math.max(0, getContentsHeightWithPadding() - (getBottom() - getY() - 4)) > 0 ? 18 : 12);
+        - (Math.max(0, contentHeight() - (getBottom() - getY() - 4)) > 0 ? 18 : 12);
   }
 
   @Override
@@ -159,10 +149,10 @@ public class ContainerPanel extends AlwaysSelectedEntryListWidget<ContainerPanel
   }
 
   @Override
-  protected void renderList(DrawContext drawContext, int mouseX, int mouseY, float delta) {
+  protected void extractListItems(GuiGraphicsExtractor drawContext, int mouseX, int mouseY, float delta) {
     if (description != null) {
-      drawContext.drawText(
-          client.textRenderer,
+      drawContext.text(
+          minecraft.font,
           description,
           parent.padding * 2,
           parent.inputHeight + parent.padding * 3 + 2,
@@ -171,12 +161,12 @@ public class ContainerPanel extends AlwaysSelectedEntryListWidget<ContainerPanel
       return;
     }
 
-    final int entryCount = getEntryCount();
+    final int entryCount = getItemCount();
     context = drawContext;
 
     for (int i = 0; i < entryCount; i++) {
       int entryTop = getRowTop(i) + 2;
-      int entryBottom = getRowTop(i) + itemHeight + 2;
+      int entryBottom = getRowTop(i) + defaultEntryHeight + 2;
 
       if (entryBottom >= getY() && entryTop <= getBottom()) {
         drawItem(entryCount, i, entryTop, mouseX, mouseY, delta);

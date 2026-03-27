@@ -18,31 +18,32 @@ import com.anordinarypeople.coordinatemanager.utils.BaseContainerScreen;
 import com.anordinarypeople.coordinatemanager.utils.CopyXYZ;
 import com.anordinarypeople.coordinatemanager.utils.DimensionColor;
 import com.anordinarypeople.coordinatemanager.utils.Messager;
-import com.anordinarypeople.coordinatemanager.widgets.Button;
+import com.anordinarypeople.coordinatemanager.widgets.Btn;
 import com.anordinarypeople.coordinatemanager.widgets.container.ContainerPanel;
 import com.anordinarypeople.coordinatemanager.widgets.container.detail.DetailPanel;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.input.CharInput;
-import net.minecraft.client.input.KeyInput;
-import net.minecraft.client.toast.SystemToast;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.toasts.SystemToast;
+import net.minecraft.client.gui.components.toasts.SystemToast.SystemToastId;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 
 @Environment(EnvType.CLIENT)
 public class HistoryScreen extends BaseContainerScreen {
   private final ManageScreen parent;
-  private final Button button = new Button(0, 0, 0, inputHeight);
+  private final Btn button = new Btn(0, 0, 0, inputHeight);
   private ArrayList<String> deleteQueue = new ArrayList<>(Coordinate.INSTANCE.size());
-  private TextFieldWidget searchWidget;
+  private EditBox searchWidget;
   private ContainerPanel containerPanel;
   private DetailPanel detailPanel;
-  private ButtonWidget selectedButton;
+  private Button selectedButton;
   public ListSelectableCoor mapData = null;
   public boolean manualUpdate = false;
   public int totalSelected;
@@ -89,16 +90,16 @@ public class HistoryScreen extends BaseContainerScreen {
   }
 
   private void renderSearch(int width) {
-    searchWidget = new TextFieldWidget(textRenderer, padding, padding, width, inputHeight, Text.empty());
-    searchWidget.setPlaceholder(Text.translatable("history.search").setStyle(Style.EMPTY.withItalic(true)));
-    searchWidget.setChangedListener(text -> containerPanel.filter(text));
+    searchWidget = new EditBox(font, padding, padding, width, inputHeight, Component.empty());
+    searchWidget.setHint(Component.translatable("history.search").setStyle(Style.EMPTY.withItalic(true)));
+    searchWidget.setResponder(text -> containerPanel.filter(text));
 
-    addDrawableChild(searchWidget);
+    addRenderableWidget(searchWidget);
   }
 
   private void renderContainer(int width) {
     containerPanel = new ContainerPanel(
-        client,
+        minecraft,
         width,
         height - inputHeight - footerHeight - padding * 3 - 2,
         padding,
@@ -109,29 +110,29 @@ public class HistoryScreen extends BaseContainerScreen {
         true);
 
     containerPanel.filter("");
-    addDrawableChild(containerPanel);
+    addRenderableWidget(containerPanel);
   }
 
   private void renderDetail(int containerPanelWidth) {
     detailPanel = new DetailPanel(
         this,
-        textRenderer,
-        client,
+        font,
+        minecraft,
         containerPanelWidth + padding * 2,
         padding,
         (int) (width * 0.4 - padding * 2 - 2),
         height - footerHeight - padding * 2 + 2);
 
-    addDrawableChild(detailPanel.description);
-    addDrawableChild(detailPanel.nameField);
-    addDrawableChild(detailPanel.xField);
-    addDrawableChild(detailPanel.yField);
-    addDrawableChild(detailPanel.zField);
-    addDrawableChild(detailPanel.favoriteButton);
-    addDrawableChild(detailPanel.copyButton);
-    addDrawableChild(detailPanel.selectButton);
-    addDrawableChild(detailPanel.deleteButton);
-    addDrawableChild(detailPanel.saveButton);
+    addRenderableWidget(detailPanel.description);
+    addRenderableWidget(detailPanel.nameField);
+    addRenderableWidget(detailPanel.xField);
+    addRenderableWidget(detailPanel.yField);
+    addRenderableWidget(detailPanel.zField);
+    addRenderableWidget(detailPanel.favoriteButton);
+    addRenderableWidget(detailPanel.copyButton);
+    addRenderableWidget(detailPanel.selectButton);
+    addRenderableWidget(detailPanel.deleteButton);
+    addRenderableWidget(detailPanel.saveButton);
   }
 
   private void renderOpenSelectedBtn() {
@@ -140,16 +141,16 @@ public class HistoryScreen extends BaseContainerScreen {
     selectedButton = button.widget(
         "history.set_selected",
         "history.set_selected.tooltip",
-        b -> client.setScreen(new SelectConfirm(this)));
+        b -> minecraft.setScreen(new SelectConfirm(this)));
     updateSelectedBtnText();
 
-    addDrawableChild(selectedButton);
+    addRenderableWidget(selectedButton);
   }
 
   private void updateSelectedBtnText() {
     selectedButton.active = totalSelected > 0;
     selectedButton.setMessage(
-        Text.translatable(
+        Component.translatable(
             selectedButton.active
                 ? "history.set_selected.total"
                 : "history.set_selected",
@@ -159,10 +160,10 @@ public class HistoryScreen extends BaseContainerScreen {
   private void renderClearUnfavoriteBtn() {
     button.x = padding * 2 + button.width;
 
-    addDrawableChild(button.widget(
+    addRenderableWidget(button.widget(
         "history.clear_unfavorite",
         "history.clear_unfavorite.tooltip",
-        b -> client.setScreen(new ClearAllConfirm(this))));
+        b -> minecraft.setScreen(new ClearAllConfirm(this))));
   }
 
   private void refreshContainerList(ListCoordinate temp, boolean skipInstance) {
@@ -172,19 +173,19 @@ public class HistoryScreen extends BaseContainerScreen {
     initMapData(temp);
     updateSelectedBtnText();
     containerPanel.list = mapData;
-    containerPanel.filter(searchWidget.getText());
+    containerPanel.filter(searchWidget.getValue());
   }
 
   private void renderBackBtn() {
     button.x = padding * 3 + button.width * 2;
 
-    addDrawableChild(button.widget("history.back", b -> close()));
+    addRenderableWidget(button.widget("history.back", b -> onClose()));
   }
 
   private void coordinateUpdater() {
     mapData.set(Coordinate.set(currentData, false), currentData);
     containerPanel.list = mapData;
-    containerPanel.filter(searchWidget.getText());
+    containerPanel.filter(searchWidget.getValue());
   }
 
   @Override
@@ -202,23 +203,21 @@ public class HistoryScreen extends BaseContainerScreen {
 
   public void onClickCopy() {
     if (currentData != null) {
-      close();
-      String coordinate = CopyXYZ.copy(client, currentData.x, currentData.y, currentData.z);
-      MutableText xyz = Text.literal(coordinate).setStyle(Style.EMPTY.withBold(true).withColor(Const.WHITE));
-      MutableText dimension = Text.translatable(currentData.dimension)
+      onClose();
+      String coordinate = CopyXYZ.copy(minecraft, currentData.x, currentData.y, currentData.z);
+      MutableComponent xyz = Component.literal(coordinate).setStyle(Style.EMPTY.withBold(true).withColor(Const.WHITE));
+      MutableComponent dimension = Component.translatable(currentData.dimension)
           .setStyle(Style.EMPTY.withColor(DimensionColor.get(currentData.dimension)));
 
       if (parent == null) {
-        client.player.sendMessage(
-            Messager.info("history.copy.success", xyz, dimension),
-            false);
+        minecraft.player.sendSystemMessage(Messager.info("history.copy.success", xyz, dimension));
       } else {
-        client.getToastManager().add(
-            SystemToast.create(
-                client,
-                SystemToast.Type.NARRATOR_TOGGLE,
-                Text.translatable("keybind.category"),
-                Text.translatable("history.copy.success", xyz, dimension)));
+        minecraft.getToastManager().addToast(
+            SystemToast.multiline(
+                minecraft,
+                SystemToastId.NARRATOR_TOGGLE,
+                Component.translatable("keybind.category"),
+                Component.translatable("history.copy.success", xyz, dimension)));
       }
     }
   }
@@ -240,16 +239,16 @@ public class HistoryScreen extends BaseContainerScreen {
 
   public void onClickDelete() {
     if (currentData != null && !currentData.isPinned) {
-      client.setScreen(new DeleteConfirm(this));
+      minecraft.setScreen(new DeleteConfirm(this));
     }
   }
 
   public void onClickSave() {
     if (currentData != null) {
-      currentData.name = detailPanel.nameField.getText();
-      currentData.x = Double.parseDouble(detailPanel.xField.getText());
-      currentData.y = Double.parseDouble(detailPanel.yField.getText());
-      currentData.z = Double.parseDouble(detailPanel.zField.getText());
+      currentData.name = detailPanel.nameField.getValue();
+      currentData.x = Double.parseDouble(detailPanel.xField.getValue());
+      currentData.y = Double.parseDouble(detailPanel.yField.getValue());
+      currentData.z = Double.parseDouble(detailPanel.zField.getValue());
       coordinateUpdater();
     }
   }
@@ -320,7 +319,7 @@ public class HistoryScreen extends BaseContainerScreen {
   }
 
   @Override
-  public boolean keyPressed(KeyInput keyInput) {
+  public boolean keyPressed(KeyEvent keyInput) {
     return super.keyPressed(keyInput)
         || searchWidget.keyPressed(keyInput)
         || detailPanel.nameField.keyPressed(keyInput)
@@ -330,7 +329,7 @@ public class HistoryScreen extends BaseContainerScreen {
   }
 
   @Override
-  public boolean charTyped(CharInput chr) {
+  public boolean charTyped(CharacterEvent chr) {
     return searchWidget.charTyped(chr)
         || detailPanel.nameField.charTyped(chr)
         || detailPanel.xField.charTyped(chr)
@@ -339,7 +338,7 @@ public class HistoryScreen extends BaseContainerScreen {
   }
 
   @Override
-  public void close() {
+  public void onClose() {
     Coordinate.save();
     Thread.ofVirtual().start(() -> {
       for (String path : deleteQueue) {
@@ -355,9 +354,9 @@ public class HistoryScreen extends BaseContainerScreen {
 
     if (parent != null) {
       parent.refreshList();
-      client.setScreen(parent);
+      minecraft.setScreen(parent);
     } else {
-      super.close();
+      super.onClose();
     }
   }
 
@@ -381,8 +380,8 @@ public class HistoryScreen extends BaseContainerScreen {
   }
 
   @Override
-  public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-    super.render(context, mouseX, mouseY, delta);
+  public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+    super.extractRenderState(context, mouseX, mouseY, delta);
 
     if (currentData != null) {
       detailPanel.renderImage(context, currentData);

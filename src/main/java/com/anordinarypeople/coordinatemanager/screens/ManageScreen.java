@@ -11,21 +11,20 @@ import com.anordinarypeople.coordinatemanager.data.WorldSearch;
 import com.anordinarypeople.coordinatemanager.enums.DeleteAllType;
 import com.anordinarypeople.coordinatemanager.screens.confirm.ManageDelConfirm;
 import com.anordinarypeople.coordinatemanager.utils.TextTrim;
-import com.anordinarypeople.coordinatemanager.widgets.Button;
+import com.anordinarypeople.coordinatemanager.widgets.Btn;
 import com.anordinarypeople.coordinatemanager.widgets.world.WorldPanel;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.tooltip.Tooltip;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.input.CharInput;
-import net.minecraft.client.input.KeyInput;
-import net.minecraft.server.integrated.IntegratedServer;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.server.IntegratedServer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 
 @Environment(EnvType.CLIENT)
 public class ManageScreen extends Screen {
@@ -33,43 +32,43 @@ public class ManageScreen extends Screen {
   public final int padding = 5;
   private final Screen parent;
   private final int footerHeight = 25;
-  private final Button button = new Button(0, 0, 0, inputHeight);
+  private final Btn button = new Btn(0, 0, 0, inputHeight);
   private WorldPanel worldPanel;
-  private TextFieldWidget searchWidget;
-  private ButtonWidget deleteButton;
-  private ButtonWidget openWorldButton;
+  private EditBox searchWidget;
+  private Button deleteButton;
+  private Button openWorldButton;
   private String selectedWorld;
 
   public ManageScreen(Screen parent) {
-    super(Text.translatable("management.title"));
+    super(Component.translatable("management.title"));
     this.parent = parent;
   }
 
   private void renderSearch() {
-    searchWidget = new TextFieldWidget(
-        textRenderer,
+    searchWidget = new EditBox(
+        font,
         padding,
         padding,
         (int) (width * 0.7) - padding * 2,
-        inputHeight, Text.empty());
-    searchWidget.setPlaceholder(Text.translatable("management.search").setStyle(Style.EMPTY.withItalic(true)));
-    searchWidget.setChangedListener(text -> worldPanel.filter(text));
+        inputHeight, Component.empty());
+    searchWidget.setHint(Component.translatable("management.search").setStyle(Style.EMPTY.withItalic(true)));
+    searchWidget.setResponder(text -> worldPanel.filter(text));
 
-    addDrawableChild(searchWidget);
+    addRenderableWidget(searchWidget);
   }
 
   private void renderConfigBtn() {
-    addDrawableChild(
-        ButtonWidget.builder(
-            Text.translatable("management.config"),
-            b -> client.setScreen(ConfigScreen.get(this)))
-            .dimensions((int) (width * 0.7), padding, (int) (width * 0.3) - padding, inputHeight)
+    addRenderableWidget(
+        Button.builder(
+            Component.translatable("management.config"),
+            b -> minecraft.setScreen(ConfigScreen.get(this)))
+            .bounds((int) (width * 0.7), padding, (int) (width * 0.3) - padding, inputHeight)
             .build());
   }
 
   private void renderWorld() {
     worldPanel = new WorldPanel(
-        client,
+        minecraft,
         width - padding * 2,
         height - inputHeight - footerHeight - padding * 3 - 2,
         padding,
@@ -80,14 +79,14 @@ public class ManageScreen extends Screen {
           selectedWorld = worldName;
           deleteButton.active = true;
           openWorldButton.active = true;
-          openWorldButton.setMessage(TextTrim.trim(client.textRenderer, Text.literal(worldName), button.width));
+          openWorldButton.setMessage(TextTrim.trim(minecraft.font, Component.literal(worldName), button.width));
           openWorldButton
-              .setTooltip(Tooltip.of(Text.translatable("management.open_world.tooltip_selected", worldName)));
+              .setTooltip(Tooltip.create(Component.translatable("management.open_world.tooltip_selected", worldName)));
         },
         this);
 
     worldPanel.filter("");
-    addDrawableChild(worldPanel);
+    addRenderableWidget(worldPanel);
   }
 
   private void renderOpenWorldBtn() {
@@ -96,10 +95,10 @@ public class ManageScreen extends Screen {
     openWorldButton = button.widget(
         "management.open_world",
         "management.open_world.tooltip",
-        b -> client.setScreen(new HistoryScreen(this)));
+        b -> minecraft.setScreen(new HistoryScreen(this)));
     openWorldButton.active = false;
 
-    addDrawableChild(openWorldButton);
+    addRenderableWidget(openWorldButton);
   }
 
   private void renderDeleteBtn() {
@@ -108,16 +107,16 @@ public class ManageScreen extends Screen {
     deleteButton = button.widget(
         "management.delete",
         "management.delete.tooltip",
-        b -> client.setScreen(new ManageDelConfirm(this, selectedWorld)));
+        b -> minecraft.setScreen(new ManageDelConfirm(this, selectedWorld)));
     deleteButton.active = false;
 
-    addDrawableChild(deleteButton);
+    addRenderableWidget(deleteButton);
   }
 
   private void renderBackBtn() {
     button.x = padding * 3 + button.width * 2;
 
-    addDrawableChild(button.widget("history.back", b -> close()));
+    addRenderableWidget(button.widget("history.back", b -> onClose()));
   }
 
   private void virtualDeleteImages(ArrayList<String> paths) {
@@ -171,34 +170,34 @@ public class ManageScreen extends Screen {
   }
 
   public void refreshList() {
-    searchWidget.setText("");
+    searchWidget.setValue("");
     worldPanel.filter("");
   }
 
   @Override
-  public boolean keyPressed(KeyInput keyInput) {
+  public boolean keyPressed(KeyEvent keyInput) {
     return super.keyPressed(keyInput)
         || searchWidget.keyPressed(keyInput);
   }
 
   @Override
-  public boolean charTyped(CharInput chr) {
+  public boolean charTyped(CharacterEvent chr) {
     return searchWidget.charTyped(chr);
   }
 
   @Override
-  public void close() {
-    IntegratedServer server = MinecraftClient.getInstance().getServer();
+  public void onClose() {
+    IntegratedServer server = minecraft.getSingleplayerServer();
 
     if (server != null) {
-      String world = server.getSaveProperties().getLevelName();
+      String world = server.getWorldData().getLevelName();
 
       if (!world.equals(Coordinate.CURRENT_WORLD)) {
         Coordinate.load(world);
       }
     }
 
-    client.setScreen(parent);
+    minecraft.setScreen(parent);
   }
 
   @Override

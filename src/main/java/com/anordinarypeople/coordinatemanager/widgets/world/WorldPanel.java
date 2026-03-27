@@ -13,21 +13,21 @@ import com.anordinarypeople.coordinatemanager.screens.ManageScreen;
 import com.anordinarypeople.coordinatemanager.utils.RenderHelper;
 import com.anordinarypeople.coordinatemanager.utils.WorldKeyword;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.ObjectSelectionList;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.util.Mth;
 
-public class WorldPanel extends AlwaysSelectedEntryListWidget<WorldPanelEntry> implements AutoCloseable {
+public class WorldPanel extends ObjectSelectionList<WorldPanelEntry> implements AutoCloseable {
   private final ManageScreen parent;
-  private MutableText description;
+  private MutableComponent description;
   private Consumer<String> onSelected;
-  private DrawContext context;
+  private GuiGraphicsExtractor context;
 
   public WorldPanel(
-      MinecraftClient client,
+      Minecraft client,
       int width,
       int height,
       int x,
@@ -48,16 +48,16 @@ public class WorldPanel extends AlwaysSelectedEntryListWidget<WorldPanelEntry> i
   }
 
   private void drawItem(int entryCount, int index, int entryTop, int mouseX, int mouseY, float delta) {
-    final int entryHeight = itemHeight - 5;
+    final int entryHeight = defaultEntryHeight - 5;
     final int rowWidth = getRowWidth();
     WorldPanelEntry entry = getEntry(index);
-    WorldPanelEntry selected = getSelectedOrNull();
+    WorldPanelEntry selected = getSelected();
 
     if (selected != null && selected.data.worldName.equals(entry.data.worldName)) {
-      drawSelected(entryTop, entryHeight, getRowLeft() - 2, rowWidth);
+      RenderHelper.drawSelected(context, getRowLeft(), rowWidth, getRowLeft() - 2, entryTop, entryHeight);
     }
 
-    entry.render(
+    entry.extractContent(
         context,
         mouseX,
         mouseY,
@@ -66,22 +66,12 @@ public class WorldPanel extends AlwaysSelectedEntryListWidget<WorldPanelEntry> i
         delta);
   }
 
-  private void drawSelected(int entryTop, int entryHeight, int entryLeft, int rowWidth) {
-    RenderHelper.drawSelected(
-        context,
-        getRowLeft(),
-        rowWidth,
-        entryLeft,
-        entryTop,
-        entryHeight);
-  }
-
   private WorldPanelEntry getEntryAtPos(int entryCount, double x, double y) {
-    final int entryY = MathHelper.floor(y - ((double) getY()) + (int) getScrollY() - 4);
-    final int index = entryY / itemHeight;
+    final int entryY = Mth.floor(y - ((double) getY()) + (int) scrollAmount() - 4);
+    final int index = entryY / defaultEntryHeight;
     final int rowLeft = getRowLeft();
 
-    return x < (double) getScrollbarX()
+    return x < (double) scrollBarX()
         && x >= (double) rowLeft
         && x <= ((double) rowLeft + getRowRight())
         && index >= 0
@@ -92,16 +82,16 @@ public class WorldPanel extends AlwaysSelectedEntryListWidget<WorldPanelEntry> i
   }
 
   private void scrollToTop() {
-    final int max = Math.max(0, getContentsHeightWithPadding() - getBottom() - getY() - 4);
+    final int max = Math.max(0, contentHeight() - getBottom() - getY() - 4);
 
-    if (getScrollY() > max) {
-      setScrollY(max);
+    if (scrollAmount() > max) {
+      setScrollAmount(max);
     }
   }
 
   public void filter(String keyword) {
     if (WorldCache.INSTANCE == null || WorldCache.INSTANCE.size() == 0) {
-      description = Text.translatable("container.description");
+      description = Component.translatable("container.description");
       return;
     }
     String lowered = keyword.toLowerCase();
@@ -119,11 +109,11 @@ public class WorldPanel extends AlwaysSelectedEntryListWidget<WorldPanelEntry> i
           pattern.matcher(data.worldName.toLowerCase()).find()) ||
           WorldKeyword.countMatched(data, pattern) > 0)) {
         clearDescription = true;
-        addEntry(new WorldPanelEntry(client, data, lowered.isBlank() ? null : pattern));
+        addEntry(new WorldPanelEntry(minecraft, data, lowered.isBlank() ? null : pattern));
       }
     }
 
-    description = clearDescription ? null : Text.translatable("container.description_not_found");
+    description = clearDescription ? null : Component.translatable("container.description_not_found");
     scrollToTop();
   }
 
@@ -140,7 +130,7 @@ public class WorldPanel extends AlwaysSelectedEntryListWidget<WorldPanelEntry> i
   @Override
   public int getRowWidth() {
     return width
-        - (Math.max(0, getContentsHeightWithPadding() - (getBottom() - getY() - 4)) > 0 ? 18 : 12);
+        - (Math.max(0, contentHeight() - (getBottom() - getY() - 4)) > 0 ? 18 : 12);
   }
 
   @Override
@@ -149,10 +139,10 @@ public class WorldPanel extends AlwaysSelectedEntryListWidget<WorldPanelEntry> i
   }
 
   @Override
-  protected void renderList(DrawContext drawContext, int mouseX, int mouseY, float delta) {
+  protected void extractListItems(GuiGraphicsExtractor drawContext, int mouseX, int mouseY, float delta) {
     if (description != null) {
-      drawContext.drawText(
-          client.textRenderer,
+      drawContext.text(
+          minecraft.font,
           description,
           parent.padding * 2,
           parent.inputHeight + parent.padding * 3 + 2,
@@ -161,12 +151,12 @@ public class WorldPanel extends AlwaysSelectedEntryListWidget<WorldPanelEntry> i
       return;
     }
 
-    final int entryCount = getEntryCount();
+    final int entryCount = getItemCount();
     context = drawContext;
 
     for (int i = 0; i < entryCount; i++) {
       int entryTop = getRowTop(i) + 2;
-      int entryBottom = getRowTop(i) + itemHeight + 2;
+      int entryBottom = getRowTop(i) + defaultEntryHeight + 2;
 
       if (entryBottom >= getY() && entryTop <= getBottom()) {
         drawItem(entryCount, i, entryTop, mouseX, mouseY, delta);

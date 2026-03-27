@@ -5,9 +5,9 @@ import com.anordinarypeople.coordinatemanager.enums.DeleteAllType;
 import com.anordinarypeople.coordinatemanager.screens.ManageScreen;
 import com.anordinarypeople.coordinatemanager.utils.BaseScreen;
 
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 
 public class ManageDelConfirm extends BaseScreen {
   private final ManageScreen manage;
@@ -20,40 +20,40 @@ public class ManageDelConfirm extends BaseScreen {
   }
 
   private void renderTitle() {
-    textField.text = Text.translatable(
+    textField.text = Component.translatable(
         "management.delete_confirmation.title",
-        trim(Text.literal(name)).setStyle(Style.EMPTY.withBold(true)))
-        .setStyle(Style.EMPTY.withColor(Formatting.RED));
+        trim(Component.literal(name)).setStyle(Style.EMPTY.withBold(true)))
+        .setStyle(Style.EMPTY.withColor(ChatFormatting.RED));
     int widthText = getWidthText(textField.text);
     textField.x = centerX - widthText / 2;
     textField.width = widthText;
 
-    addDrawableChild(textField.label());
+    addRenderableWidget(textField.label());
   }
 
   private void renderMessage() {
-    textField.text = Text.translatable(
+    textField.text = Component.translatable(
         "management.delete_confirmation.message",
-        Text.literal(Integer.toString(Coordinate.INSTANCE.size()))
+        Component.literal(Integer.toString(Coordinate.INSTANCE.size()))
             .setStyle(Style.EMPTY.withBold(true)));
     int widthText = getWidthText(textField.text);
     textField.x = centerX - widthText / 2;
     textField.y += baseHeight - 5;
     textField.width = widthText;
 
-    addDrawableChild(textField.label());
+    addRenderableWidget(textField.label());
   }
 
   private void renderAllDelete() {
     button.width -= 2;
-    addDrawableChild(button.widget("management.delete_confirmation.all", b -> {
+    addRenderableWidget(button.widget("management.delete_confirmation.all", b -> {
       onClickConfirm(DeleteAllType.ALL);
     }));
   }
 
   private void renderAllUnfavorite() {
     button.x += buttonWidth + 2;
-    addDrawableChild(button.widget("management.delete_confirmation.all_unfavorite", b -> {
+    addRenderableWidget(button.widget("management.delete_confirmation.all_unfavorite", b -> {
       onClickConfirm(DeleteAllType.UNFAVORITE);
     }));
   }
@@ -62,12 +62,12 @@ public class ManageDelConfirm extends BaseScreen {
     button.x = centerX / 2;
     button.y += baseHeight + 4;
     button.width = buttonWidth * 2;
-    addDrawableChild(button.widget("history.back", b -> close()));
+    addRenderableWidget(button.widget("history.back", b -> onClose()));
   }
 
   private void onClickConfirm(DeleteAllType confirmType) {
     manage.onDeleteConfirmed(confirmType);
-    close();
+    onClose();
   }
 
   @Override

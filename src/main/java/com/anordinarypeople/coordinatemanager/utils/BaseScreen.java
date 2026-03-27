@@ -1,11 +1,11 @@
 package com.anordinarypeople.coordinatemanager.utils;
 
-import com.anordinarypeople.coordinatemanager.widgets.Button;
+import com.anordinarypeople.coordinatemanager.widgets.Btn;
 import com.anordinarypeople.coordinatemanager.widgets.TextField;
 
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 
 public class BaseScreen extends Screen {
   private final Screen parent;
@@ -13,34 +13,34 @@ public class BaseScreen extends Screen {
   protected int centerX;
   protected int buttonWidth;
   protected TextField textField;
-  protected Button button;
+  protected Btn button;
 
   protected BaseScreen(Screen parent, String translationKey) {
-    super(Text.translatable(translationKey));
+    super(Component.translatable(translationKey));
     this.parent = parent;
   }
 
-  protected int getWidthText(Text text) {
-    return client.textRenderer.getWidth(text);
+  protected int getWidthText(Component text) {
+    return minecraft.font.width(text);
   }
 
-  protected MutableText trim(Text text) {
-    return TextTrim.trim(client.textRenderer, text, width);
+  protected MutableComponent trim(Component text) {
+    return TextTrim.trim(minecraft.font, text, width);
   }
 
   protected void baseInit() {
     centerX = width / 2;
-    textField = new TextField(client.textRenderer, 0, 0, 0, baseHeight);
+    textField = new TextField(minecraft.font, 0, 0, 0, baseHeight);
     textField.y = height / 2 - 50;
   }
 
   protected void baseInitButton() {
     buttonWidth = centerX / 2;
-    button = new Button(centerX - buttonWidth, textField.y + baseHeight, buttonWidth, baseHeight);
+    button = new Btn(centerX - buttonWidth, textField.y + baseHeight, buttonWidth, baseHeight);
   }
 
   @Override
-  public void close() {
-    client.setScreen(parent);
+  public void onClose() {
+    minecraft.setScreen(parent);
   }
 }
