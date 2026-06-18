@@ -41,6 +41,6 @@ public class BaseScreen extends Screen {
 
   @Override
   public void onClose() {
-    minecraft.setScreen(parent);
+    minecraft.setScreenAndShow(parent);
   }
 }

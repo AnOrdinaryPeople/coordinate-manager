@@ -214,7 +214,7 @@ public class WorldNameScreen extends BaseContainerScreen {
 
   private void onSelect() {
     initWorlds();
-    minecraft.setScreen(new ChooseWorldScreen(this));
+    minecraft.setScreenAndShow(new ChooseWorldScreen(this));
   }
 
   public void onSubmit(String worldName) {
@@ -285,12 +285,12 @@ public class WorldNameScreen extends BaseContainerScreen {
       logger.errorFile("write JSON", file, e);
     }
     WorldCache.load();
-    minecraft.setScreen(new ManageScreen(parent));
+    minecraft.setScreenAndShow(new ManageScreen(parent));
   }
 
   @Override
   public void onClose() {
-    minecraft.setScreen(parent);
+    minecraft.setScreenAndShow(parent);
   }
 
   @Override

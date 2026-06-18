@@ -1,7 +1,5 @@
 package com.anordinarypeople.coordinatemanager;
 
-import org.lwjgl.glfw.GLFW;
-
 import com.anordinarypeople.coordinatemanager.cache.ModConfig;
 import com.anordinarypeople.coordinatemanager.data.Const;
 import com.anordinarypeople.coordinatemanager.screens.HistoryScreen;
@@ -31,10 +29,10 @@ public class CoordinateManagerClient implements ClientModInitializer {
   private void registerKeys() {
     capture = KeyMappingHelper
         .registerKeyMapping(
-            new KeyMapping("keybind.capture", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_F9, KeyMapping.Category.MISC));
+            new KeyMapping("keybind.capture", InputConstants.Type.KEYSYM, InputConstants.KEY_F9, KeyMapping.Category.MISC));
     history = KeyMappingHelper
         .registerKeyMapping(
-            new KeyMapping("keybind.history", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_F10, KeyMapping.Category.MISC));
+            new KeyMapping("keybind.history", InputConstants.Type.KEYSYM, InputConstants.KEY_F10, KeyMapping.Category.MISC));
   }
 
   private void keyOnPressed() {
@@ -53,7 +51,7 @@ public class CoordinateManagerClient implements ClientModInitializer {
       }
 
       while (history.consumeClick()) {
-        client.setScreen(new HistoryScreen(null));
+        client.setScreenAndShow(new HistoryScreen(null));
       }
     });
   }

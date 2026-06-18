@@ -81,7 +81,7 @@ public class ChooseWorldScreen extends BaseContainerScreen {
   @Override
   public void onClose() {
     parent.selected = null;
-    minecraft.setScreen(parent);
+    minecraft.setScreenAndShow(parent);
   }
 
   @Override

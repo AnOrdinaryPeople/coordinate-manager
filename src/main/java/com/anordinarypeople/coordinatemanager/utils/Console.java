@@ -2,8 +2,8 @@ package com.anordinarypeople.coordinatemanager.utils;
 
 import java.io.File;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.anordinarypeople.coordinatemanager.data.Const;
 
@@ -13,7 +13,7 @@ public class Console {
   private final Logger logger;
 
   public Console(String scope) {
-    this.logger = LoggerFactory.getLogger(this.modId);
+    this.logger = LogManager.getLogger(this.modId);
     this.scope = scope;
   }
 

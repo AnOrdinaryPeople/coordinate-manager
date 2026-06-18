@@ -60,7 +60,7 @@ public class CaptureHandler {
   }
 
   private void createImage() {
-    RenderTarget framebuffer = client.getMainRenderTarget();
+    RenderTarget framebuffer = client.gameRenderer.mainRenderTarget();
     File path = LoadFileFromLoader.fabric(Const.MODID);
     String filename = String.format(
         "%s_%s.png",
@@ -146,7 +146,7 @@ public class CaptureHandler {
       saveCoordinate();
     } else {
       screen = new CaptureScreen(this);
-      client.setScreen(screen);
+      client.setScreenAndShow(screen);
     }
   }
 }

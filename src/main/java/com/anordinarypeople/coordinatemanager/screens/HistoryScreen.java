@@ -141,7 +141,7 @@ public class HistoryScreen extends BaseContainerScreen {
     selectedButton = button.widget(
         "history.set_selected",
         "history.set_selected.tooltip",
-        b -> minecraft.setScreen(new SelectConfirm(this)));
+        b -> minecraft.setScreenAndShow(new SelectConfirm(this)));
     updateSelectedBtnText();
 
     addRenderableWidget(selectedButton);
@@ -163,7 +163,7 @@ public class HistoryScreen extends BaseContainerScreen {
     addRenderableWidget(button.widget(
         "history.clear_unfavorite",
         "history.clear_unfavorite.tooltip",
-        b -> minecraft.setScreen(new ClearAllConfirm(this))));
+        b -> minecraft.setScreenAndShow(new ClearAllConfirm(this))));
   }
 
   private void refreshContainerList(ListCoordinate temp, boolean skipInstance) {
@@ -212,9 +212,8 @@ public class HistoryScreen extends BaseContainerScreen {
       if (parent == null) {
         minecraft.player.sendSystemMessage(Messager.info("history.copy.success", xyz, dimension));
       } else {
-        minecraft.getToastManager().addToast(
-            SystemToast.multiline(
-                minecraft,
+        minecraft.gui.toastManager().addToast(
+            new SystemToast(
                 SystemToastId.NARRATOR_TOGGLE,
                 Component.translatable("keybind.category"),
                 Component.translatable("history.copy.success", xyz, dimension)));
@@ -239,7 +238,7 @@ public class HistoryScreen extends BaseContainerScreen {
 
   public void onClickDelete() {
     if (currentData != null && !currentData.isPinned) {
-      minecraft.setScreen(new DeleteConfirm(this));
+      minecraft.setScreenAndShow(new DeleteConfirm(this));
     }
   }
 
@@ -354,7 +353,7 @@ public class HistoryScreen extends BaseContainerScreen {
 
     if (parent != null) {
       parent.refreshList();
-      minecraft.setScreen(parent);
+      minecraft.setScreenAndShow(parent);
     } else {
       super.onClose();
     }

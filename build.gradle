@@ -50,7 +50,7 @@ tasks.withType(JavaCompile).configureEach {
 java {
 	// Loom will automatically attach sourcesJar to a build task if it is present.
 	// If you remove this line, sources will not be generated.
-	withSourcesJar()
+	// withSourcesJar()
 
 	sourceCompatibility = JavaVersion.VERSION_25
 	targetCompatibility = JavaVersion.VERSION_25

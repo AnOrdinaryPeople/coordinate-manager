@@ -61,7 +61,7 @@ public class ManageScreen extends Screen {
     addRenderableWidget(
         Button.builder(
             Component.translatable("management.config"),
-            b -> minecraft.setScreen(ConfigScreen.get(this)))
+            b -> minecraft.setScreenAndShow(ConfigScreen.get(this)))
             .bounds((int) (width * 0.7), padding, (int) (width * 0.3) - padding, inputHeight)
             .build());
   }
@@ -95,7 +95,7 @@ public class ManageScreen extends Screen {
     openWorldButton = button.widget(
         "management.open_world",
         "management.open_world.tooltip",
-        b -> minecraft.setScreen(new HistoryScreen(this)));
+        b -> minecraft.setScreenAndShow(new HistoryScreen(this)));
     openWorldButton.active = false;
 
     addRenderableWidget(openWorldButton);
@@ -107,7 +107,7 @@ public class ManageScreen extends Screen {
     deleteButton = button.widget(
         "management.delete",
         "management.delete.tooltip",
-        b -> minecraft.setScreen(new ManageDelConfirm(this, selectedWorld)));
+        b -> minecraft.setScreenAndShow(new ManageDelConfirm(this, selectedWorld)));
     deleteButton.active = false;
 
     addRenderableWidget(deleteButton);
@@ -197,7 +197,7 @@ public class ManageScreen extends Screen {
       }
     }
 
-    minecraft.setScreen(parent);
+    minecraft.setScreenAndShow(parent);
   }
 
   @Override
